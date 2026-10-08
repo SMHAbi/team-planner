@@ -41,6 +41,8 @@
   --t-vatm: #c03f86; --t-vatm-soft: #fce7f2;
   --t-mtd: #c0650f; --t-mtd-soft: #fdeedc;
   --t-bookkeeping: #2c8549; --t-bookkeeping-soft: #e2f4e7;
+  --t-adhoc: #1b5e35; --t-adhoc-soft: #d3eadb;
+  --pp0: #b6bac8; --pp1: #2a78d6; --pp2: #eb6834; --pp3: #1baf7a; --pp4: #eda100; --pp5: #e87ba4; --pp6: #008300; --pp7: #4a3aa7;
   --t-cis: #b53a3a; --t-cis-soft: #fce6e4;
   --f-display: 'Outfit', 'Segoe UI', system-ui, sans-serif;
   --f-body: 'Figtree', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -57,7 +59,7 @@
     --s-done-bg: #193728; --s-done-fg: #93dcb2; --s-stuck-bg: #3d2020; --s-stuck-fg: #f5a39c; --p-red: #f07a72; --c-requested: #c97a2a; --c-in: #1a9b95; --c-working: #5c7fe6; --c-queries: #d0578c; --c-awaiting: #ad8a10; --c-reviewed: #9e7af0; --c-confirm: #1d93c6; --c-complete: #2c9a60; --s-conf-bg: #16323f; --s-conf-fg: #8fd0f0; --p-amber: #f2b061; --p-green: #6fd09a;
     --t-overview: #c9cee0; --t-overview-soft: #272c3b; --t-vat1: #94abff; --t-vat1-soft: #222c4d; --t-vat2: #6fd6d1; --t-vat2-soft: #173634;
     --t-vat3: #c3a6ff; --t-vat3-soft: #2c2348; --t-vatm: #f5a3cf; --t-vatm-soft: #3c2133;
-    --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #8fd9a6; --t-bookkeeping-soft: #1a3424;
+    --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #8fd9a6; --t-bookkeeping-soft: #1a3424; --t-adhoc: #6cc58c; --t-adhoc-soft: #10301d; --pp0: #4a4f5e; --pp1: #3987e5; --pp2: #d95926; --pp3: #199e70; --pp4: #c98500; --pp5: #d55181; --pp6: #008300; --pp7: #9085e9;
     --t-cis: #f5a19b; --t-cis-soft: #3d2222;
     color-scheme: dark;
   }
@@ -72,7 +74,7 @@
   --s-done-bg: #193728; --s-done-fg: #93dcb2; --s-stuck-bg: #3d2020; --s-stuck-fg: #f5a39c; --p-red: #f07a72; --c-requested: #c97a2a; --c-in: #1a9b95; --c-working: #5c7fe6; --c-queries: #d0578c; --c-awaiting: #ad8a10; --c-reviewed: #9e7af0; --c-confirm: #1d93c6; --c-complete: #2c9a60; --s-conf-bg: #16323f; --s-conf-fg: #8fd0f0; --p-amber: #f2b061; --p-green: #6fd09a;
   --t-overview: #c9cee0; --t-overview-soft: #272c3b; --t-vat1: #94abff; --t-vat1-soft: #222c4d; --t-vat2: #6fd6d1; --t-vat2-soft: #173634;
   --t-vat3: #c3a6ff; --t-vat3-soft: #2c2348; --t-vatm: #f5a3cf; --t-vatm-soft: #3c2133;
-  --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #8fd9a6; --t-bookkeeping-soft: #1a3424;
+  --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #8fd9a6; --t-bookkeeping-soft: #1a3424; --t-adhoc: #6cc58c; --t-adhoc-soft: #10301d; --pp0: #4a4f5e; --pp1: #3987e5; --pp2: #d95926; --pp3: #199e70; --pp4: #c98500; --pp5: #d55181; --pp6: #008300; --pp7: #9085e9;
   --t-cis: #f5a19b; --t-cis-soft: #3d2222;
   color-scheme: dark;
 }
@@ -466,6 +468,33 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
 .ov-jobs tfoot td:first-child { font-weight: 600; color: var(--muted); }
 .num-r { text-align: right; padding-right: 18px !important; }
 .tot-b { color: var(--p-green); }
+
+/* Ad hoc bookkeeping */
+.group.adhoc { --accent: var(--t-adhoc); --accent-soft: var(--t-adhoc-soft); border-left: 5px solid var(--t-adhoc); }
+.group.adhoc .group-head { background: var(--t-adhoc-soft); }
+.group.adhoc .group-head h2 .ttl { color: var(--t-adhoc); }
+.group.adhoc .firm-tag { background: var(--t-adhoc); color: var(--surface); }
+/* Workload */
+.wl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; padding: 4px 20px 20px; }
+.wl-card { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.wl-head b { font-weight: 600; font-size: 0.98rem; display: block; }
+.wl-head small { font-size: 0.76rem; color: var(--muted); }
+.wl-body { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.donut.pie { width: 132px; height: 132px; }
+.donut.pie .dl1 { font-size: 24px; }
+.wl-list { flex: 1; min-width: 190px; display: flex; flex-direction: column; gap: 2px; }
+.wl-cols, .wl-row { display: grid; grid-template-columns: 10px minmax(60px, auto) 1fr 32px 32px; align-items: center; gap: 8px; }
+.wl-cols { font-size: 0.68rem; font-weight: 600; color: var(--muted); padding: 0 8px; }
+.wl-cols span:nth-child(n+4) { text-align: right; }
+.wl-row { font: inherit; text-align: left; border: 0; background: none; color: var(--ink); padding: 5px 8px; border-radius: 8px; cursor: pointer; }
+.wl-row:hover { background: var(--hover); }
+.wl-row.on { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.wl-row i { width: 10px; height: 10px; border-radius: 3px; }
+.wl-n { font-size: 0.88rem; font-weight: 600; white-space: nowrap; }
+.wl-bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.wl-bar > span { display: block; height: 100%; border-radius: 999px; }
+.wl-row b { font-family: var(--f-display); font-size: 1.05rem; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.wl-row small { font-size: 0.78rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -520,6 +549,10 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
         <label for="newFirm">Client of</label>
         <select id="newFirm"></select>
       </div>
+      <div class="field" id="newKindWrap" hidden>
+        <label for="newKind">List</label>
+        <select id="newKind"><option value="">Monthly</option><option value="adhoc">Ad hoc</option></select>
+      </div>
       <button class="btn primary" type="submit" id="addBtn">Add company</button>
     </form>
     <div class="filters">
@@ -531,7 +564,7 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
         <label for="fStatus">Status</label>
         <select id="fStatus"></select>
       </div>
-      <div class="field">
+      <div class="field" hidden>
         <label for="fCom">Communicator</label>
         <select id="fCom"></select>
       </div>
@@ -760,8 +793,8 @@ function patch(id, fields) {
   jobs.set(id, { ...j, ...fields }); render();
   return Promise.all(Object.entries(fields).map(([k, v]) => enqueue({ t: "update", id, field: k, value: v, company: j.company }))).catch(() => refresh(true));
 }
-async function addJob(name, firm) {
-  const job = { id: Math.random().toString(36).slice(2, 12) + Date.now().toString(36), tab, firm, company: name, status: "", communicator: "", preparer: "", reviewer: "", billed: "", subitems: "", updated: new Date().toISOString(), updatedBy: cfg.name || "" };
+async function addJob(name, firm, adhoc) {
+  const job = { id: Math.random().toString(36).slice(2, 12) + Date.now().toString(36), tab, firm, adhoc: adhoc ? "yes" : "", company: name, status: "", communicator: "", preparer: "", reviewer: "", billed: "", subitems: "", updated: new Date().toISOString(), updatedBy: cfg.name || "" };
   jobs.set(job.id, job); render();
   try { await enqueue({ t: "add", job }); } catch (e) { refresh(true); }
 }
@@ -856,7 +889,7 @@ function buildStatic() {
     e.preventDefault();
     const name = $("newName").value.trim(); if (!name) return;
     $("newName").value = "";
-    await addJob(name, $("newFirm").value);
+    await addJob(name, $("newFirm").value, tab === "bookkeeping" && $("newKind").value === "adhoc");
     $("newName").focus();
   });
 
@@ -879,22 +912,24 @@ function buildStatic() {
   $("resetBtn").addEventListener("click", () => bulk("reset"));
   $("wipeBtn").addEventListener("click", () => bulk("wipe"));
 
-  // one section per firm
+  // one section per firm (plus ad hoc sections for bookkeeping)
   const host = $("lists");
-  ALL_FIRMS.forEach(f => {
-    const sec = document.createElement("section"); sec.className = "group";
+  SECTIONS.forEach(({ key, firm: f, adhoc }) => {
+    const sec = document.createElement("section"); sec.className = "group" + (adhoc ? " adhoc" : "");
     sec.innerHTML = `<div class="group-head"><h2><span class="firm-tag"></span><span class="ttl"></span></h2>
       <div class="progress"><span class="pt"></span><div class="bar"><span></span></div></div></div>
       <div class="scroll"><table><thead><tr></tr></thead></table></div>
       <div class="empty"></div>`;
     sec.querySelector(".firm-tag").textContent = f;
     host.append(sec);
-    firmEls.set(f, { sec, ttl: sec.querySelector(".ttl"), head: sec.querySelector("thead tr"), table: sec.querySelector("table"),
+    firmEls.set(key, { sec, ttl: sec.querySelector(".ttl"), head: sec.querySelector("thead tr"), table: sec.querySelector("table"),
       wrap: sec.querySelector(".scroll"), empty: sec.querySelector(".empty"), pt: sec.querySelector(".pt"),
       barWrap: sec.querySelector(".bar"), bar: sec.querySelector(".bar > span") });
   });
 }
 const firmEls = new Map();
+const isAdhoc = j => j.adhoc === "yes" || j.adhoc === true;
+const SECTIONS = [...ALL_FIRMS.map(f => ({ key: f, firm: f, adhoc: false })), { key: "Sheards|adhoc", firm: "Sheards", adhoc: true }, { key: "BCL|adhoc", firm: "BCL", adhoc: true }];
 
 async function bulk(kind) {
   if ($("confirmWord").value.trim().toUpperCase() !== "CLEAR") return;
@@ -1365,7 +1400,7 @@ function makeRow(id) {
   const pre = makeSelect("", ppl, v => patch(id, { preparer: v }), "Preparer"); pre.id = "pre-" + id;
   const rev = makeSelect("", ppl, v => patch(id, { reviewer: v }), "Reviewer"); rev.id = "rev-" + id;
   const per = makeSelect("", VAT_TABS.map(t => ({ v: t.id, l: t.label })), v => patch(id, { tab: v }), "VAT period"); per.id = "per-" + id;
-  const cells = [st, com, pre, rev].map(el => { const c = td(); c.append(el); return c; });
+  const cells = [st, pre, rev].map(el => { const c = td(); c.append(el); return c; });
   const c5 = td(); c5.className = "per"; c5.append(per);
   const c6 = td(); c6.className = "act";
   const rm = document.createElement("button"); rm.type = "button"; rm.className = "rm"; rm.textContent = "Remove";
@@ -1429,7 +1464,7 @@ function syncRow(tr, j, isVat) {
   f.tog.setAttribute("aria-expanded", open ? "true" : "false");
   f.tog.title = open ? "Hide sub items" : `Show sub items (${n})`;
   f.subTr.hidden = !open;
-  if (open) { f.subTd.colSpan = 6; renderSubs(tr, id, j); }
+  if (open) { f.subTd.colSpan = 5; renderSubs(tr, id, j); }
 }
 
 function renderLists() {
@@ -1441,19 +1476,21 @@ function renderLists() {
   const filtering = !!(q || fSt || fCom || fPre || fRev || $("hideDone").checked || behindOnly);
   $("clearFilters").hidden = !filtering;
   const hide = $("hideDone").checked;
-  const cols = ["Company", "Status", "Communicator", "Preparer", "Reviewer", ""];
+  const cols = ["Company", "Status", "Preparer", "Reviewer", ""];
 
   const fs = firmsFor(), af = activeFirm();
   const nf = $("newFirm");
   if (nf.dataset.tab !== tab) { const keep = nf.value; nf.textContent = ""; fs.forEach(f => nf.append(opt(f, f))); if (fs.includes(keep)) nf.value = keep; nf.dataset.tab = tab; }
-  ALL_FIRMS.forEach(f => {
-    const els = firmEls.get(f);
-    els.sec.hidden = !fs.includes(f) || (!!af && af !== f);
-    els.ttl.textContent = t.title;
+  $("newKindWrap").hidden = tab !== "bookkeeping";
+  SECTIONS.forEach(({ key, firm: f, adhoc }) => {
+    const els = firmEls.get(key);
+    els.sec.hidden = !fs.includes(f) || (!!af && af !== f) || (adhoc && tab !== "bookkeeping");
+    if (els.sec.hidden) return;
+    els.ttl.textContent = adhoc ? "Ad hoc bookkeeping" : t.title;
     els.head.textContent = "";
     cols.forEach(h => { const th = document.createElement("th"); th.scope = "col"; th.textContent = h; els.head.append(th); });
 
-    const all = list(tab, f);
+    const all = list(tab, f).filter(([, j]) => isAdhoc(j) === adhoc);
     const done = all.filter(([, j]) => j.status === "complete").length;
     els.pt.textContent = all.length ? `${done} of ${all.length} complete` : "";
     els.bar.style.width = all.length ? (100 * done / all.length) + "%" : "0%";
@@ -1484,6 +1521,7 @@ function renderLists() {
     els.empty.hidden = !!shown.length;
     els.empty.textContent = all.length
       ? "No companies match the current filters."
+      : adhoc ? `No ${f} ad hoc jobs yet. In the box above choose ${f} and List: Ad hoc, type a company name and press Add company.`
       : `No ${f} clients on this tab yet. Type a company name above, choose ${f}, and press Add company.`;
   });
   for (const id of [...rowEls.keys()]) if (!jobs.has(id)) rowEls.delete(id);
@@ -1645,10 +1683,10 @@ function renderOverview() {
     const sub = pg ? `<span class="subprog" data-band="${pg.band}" title="${pg.done} of ${pg.total} sub items complete"><span class="mb"><span style="width:${pg.pct}%"></span></span><span class="pc">${pg.pct}%</span></span>` : "";
     const ds = deadlineState(j);
     const dl = ds ? `<span class="dl" data-state="${ds.state}" title="${esc(ds.title)}">${esc(ds.tag + ds.short)}</span>` : "";
-    const ppl = [j.communicator, j.preparer, j.reviewer];
+    const ppl = [j.preparer, j.reviewer];
     return `<tr class="${ds && ds.state === "behind" ? "behind" : ""}">
       <td class="cco"><button type="button" class="co-link" data-tab="${t.id}" data-co="${esc(j.company)}" title="Open on its tab">${esc(j.company)}</button>
-        <span class="cmeta"><i class="ov-dot" style="background:var(--t-${t.id})"></i>${esc(t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label)} · ${esc(j.firm || "Sheards")}</span></td>
+        <span class="cmeta"><i class="ov-dot" style="background:var(--t-${t.id})"></i>${esc(t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label)}${isAdhoc(j) ? " · Ad hoc" : ""} · ${esc(j.firm || "Sheards")}</span></td>
       <td><span class="pill" data-s="${esc(j.status || "")}">${esc(j.status ? STATUS_LABEL[j.status] || j.status : "Not set")}</span>${sub ? " " + sub : ""}</td>
       <td>${dl}</td>
       ${ppl.map(p => `<td class="cppl">${p ? esc(p) : `<span class="muted">—</span>`}</td>`).join("")}
@@ -1657,15 +1695,47 @@ function renderOverview() {
   }).join("");
   const jobName = fJob ? (TABS.find(t => t.id === fJob) || {}).title : "";
 
+  // workload by person (open = not complete), for the chosen period
+  const PCOL = Object.fromEntries(PEOPLE.map((n, i) => [n, `var(--pp${i + 1})`]));
+  const pie = (parts, total, big, small) => {
+    const R = 46, C = 2 * Math.PI * R, GAP = parts.filter(x => x.n).length > 1 ? 2 : 0;
+    let off = 0, segs = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="18"/>`;
+    parts.forEach(x => {
+      if (!x.n || !total) return;
+      const len = C * x.n / total, draw = Math.max(len - GAP, 1);
+      segs += `<circle class="seg" cx="60" cy="60" r="${R}" fill="none" stroke="${x.c}" stroke-width="18" stroke-dasharray="${draw} ${C - draw}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"><title>${esc(x.label)}: ${x.n} open ${x.n === 1 ? "job" : "jobs"}</title></circle>`;
+      off += len;
+    });
+    return `<svg class="donut pie" viewBox="0 0 120 120" role="img" aria-label="${esc(small)}">${segs}<text x="60" y="62" text-anchor="middle" class="dl1">${big}</text><text x="60" y="79" text-anchor="middle" class="dl2">${esc(small)}</text></svg>`;
+  };
+  const workCard = (role, label, fid) => {
+    const open = scope.filter(([, j]) => j.status !== "complete");
+    const parts = PEOPLE.map(n => ({ key: n, label: n, c: PCOL[n], n: open.filter(([, j]) => j[role] === n).length, all: scope.filter(([, j]) => j[role] === n).length }))
+      .filter(x => x.all);
+    const un = open.filter(([, j]) => !j[role]).length;
+    if (un) parts.push({ key: "__none", label: "Not assigned", c: "var(--pp0)", n: un, all: scope.filter(([, j]) => !j[role]).length });
+    const max = Math.max(1, ...parts.map(x => x.n));
+    const curF = $(fid).value;
+    const rows = parts.map(x => `<button type="button" class="wl-row${curF === x.key ? " on" : ""}" data-f="${fid}" data-v="${esc(x.key)}" title="${curF === x.key ? "Show everyone" : "Show " + esc(x.label) + "'s jobs below"}">
+        <i style="background:${x.c}"></i><span class="wl-n">${esc(x.label)}</span>
+        <span class="wl-bar"><span style="width:${100 * x.n / max}%;background:${x.c}"></span></span>
+        <b>${x.n}</b><small>${x.all}</small></button>`).join("");
+    return `<div class="wl-card"><div class="wl-head"><b>${label}</b><small>Jobs not yet complete${selTab ? " · " + esc(selName) : ""}</small></div>
+      ${parts.length ? `<div class="wl-body">${pie(parts, open.length, open.length, "open jobs")}<div class="wl-list"><div class="wl-cols"><span></span><span></span><span></span><span>Open</span><span>Total</span></div>${rows}</div></div>` : `<p class="ov-more">Nobody is assigned yet.</p>`}</div>`;
+  };
+  const workload = `<section class="ov-card"><h2>Workload by person <small>Click a name to see their jobs below</small></h2>
+    <div class="wl-grid">${workCard("preparer", "Preparers", "fPre")}${workCard("reviewer", "Reviewers", "fRev")}</div></section>`;
+
   const billSeg = `<span class="billseg" role="radiogroup" aria-label="Billing">${[["", "All"], ["no", "Not billed"], ["yes", "Billed"]].map(([v, l]) => `<button type="button" data-b="${v}" class="${fBill === v ? "on" : ""}" role="radio" aria-checked="${fBill === v}">${l}</button>`).join("")}</span>`;
   const ae = document.activeElement, keep = ae && ae.classList && ae.classList.contains("fee") && host.contains(ae) ? { id: ae.id, v: ae.value, s: ae.selectionStart, e: ae.selectionEnd } : null;
   host.innerHTML = periodBar + kpi + `
     <section class="ov-card"><h2>Progress by job list <small>Click a chart to show just that list below</small></h2>
       <div class="ov-charts">${cards}</div></section>
+    ${workload}
     <section class="ov-card" id="ovAll"><h2><span>${jobName ? esc(jobName) : "All jobs"}${fJob ? ` <button type="button" class="chip-x" id="clearJob" title="Show all lists">✕ all lists</button>` : ""}</span>
       <small class="ovall-r">${billSeg}<span>${shown.length} ${shown.length === 1 ? "job" : "jobs"}${shown.length !== nAll ? " match" : ""}</span></small></h2>
-      ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Communicator</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th></tr></thead><tbody>${jobRows}</tbody>
-      <tfoot><tr><td colspan="6">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td></tr></tfoot></table></div>` : `<p class="ov-more">No jobs match the current filters.</p>`}
+      ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th></tr></thead><tbody>${jobRows}</tbody>
+      <tfoot><tr><td colspan="5">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td></tr></tfoot></table></div>` : `<p class="ov-more">No jobs match the current filters.</p>`}
       ${shown.length > LIMIT ? `<div class="ov-more"><button type="button" class="btn" id="showAllJobs">Show all ${shown.length} jobs</button></div>` : (ovShowAll && shown.length > 25 ? `<div class="ov-more"><button type="button" class="btn" id="showFewer">Show fewer</button></div>` : "")}</section>`;
 
   host.querySelectorAll(".chart-card").forEach(cd => cd.addEventListener("click", () => {
@@ -1681,6 +1751,10 @@ function renderOverview() {
   const sa = $("showAllJobs"); if (sa) sa.addEventListener("click", () => { ovShowAll = true; render(); });
   const sf = $("showFewer"); if (sf) sf.addEventListener("click", () => { ovShowAll = false; render(); });
   if (keep) { const el = document.getElementById(keep.id); if (el) { el.value = keep.v; el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (e) {} } }
+  host.querySelectorAll(".wl-row").forEach(b => b.addEventListener("click", () => {
+    const sel = $(b.dataset.f); sel.value = sel.value === b.dataset.v ? "" : b.dataset.v;
+    render(); if (sel.value) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
   host.querySelectorAll(".fee").forEach(inp => {
     const save = () => { const j = jobs.get(inp.dataset.id); const v = cleanFee(inp.value); if (j && v !== cleanFee(j.fee || "")) patch(inp.dataset.id, { fee: v }); else if (j) inp.value = feeOf(j) ? String(feeOf(j)) : ""; };
     inp.addEventListener("change", save);
