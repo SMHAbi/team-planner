@@ -40,8 +40,8 @@
   --t-vat3: #7647cf; --t-vat3-soft: #efe8fc;
   --t-vatm: #c03f86; --t-vatm-soft: #fce7f2;
   --t-mtd: #c0650f; --t-mtd-soft: #fdeedc;
-  --t-bookkeeping: #2c8549; --t-bookkeeping-soft: #e2f4e7;
-  --t-adhoc: #1b5e35; --t-adhoc-soft: #d3eadb;
+  --t-bookkeeping: #c03f86; --t-bookkeeping-soft: #fce7f2;
+  --t-adhoc: #8a1d58; --t-adhoc-soft: #f5d3e6;
   --pp0: #b6bac8; --pp1: #2a78d6; --pp2: #eb6834; --pp3: #1baf7a; --pp4: #eda100; --pp5: #e87ba4; --pp6: #008300; --pp7: #4a3aa7;
   --t-cis: #b53a3a; --t-cis-soft: #fce6e4;
   --f-display: 'Outfit', 'Segoe UI', system-ui, sans-serif;
@@ -59,7 +59,7 @@
     --s-done-bg: #193728; --s-done-fg: #93dcb2; --s-stuck-bg: #3d2020; --s-stuck-fg: #f5a39c; --p-red: #f07a72; --c-requested: #c97a2a; --c-in: #1a9b95; --c-working: #5c7fe6; --c-queries: #d0578c; --c-awaiting: #ad8a10; --c-reviewed: #9e7af0; --c-confirm: #1d93c6; --c-complete: #2c9a60; --s-conf-bg: #16323f; --s-conf-fg: #8fd0f0; --p-amber: #f2b061; --p-green: #6fd09a;
     --t-overview: #c9cee0; --t-overview-soft: #272c3b; --t-vat1: #94abff; --t-vat1-soft: #222c4d; --t-vat2: #6fd6d1; --t-vat2-soft: #173634;
     --t-vat3: #c3a6ff; --t-vat3-soft: #2c2348; --t-vatm: #f5a3cf; --t-vatm-soft: #3c2133;
-    --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #8fd9a6; --t-bookkeeping-soft: #1a3424; --t-adhoc: #6cc58c; --t-adhoc-soft: #10301d; --pp0: #4a4f5e; --pp1: #3987e5; --pp2: #d95926; --pp3: #199e70; --pp4: #c98500; --pp5: #d55181; --pp6: #008300; --pp7: #9085e9;
+    --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #f5a3cf; --t-bookkeeping-soft: #3c2133; --t-adhoc: #f07dbb; --t-adhoc-soft: #2c1222; --pp0: #4a4f5e; --pp1: #3987e5; --pp2: #d95926; --pp3: #199e70; --pp4: #c98500; --pp5: #d55181; --pp6: #008300; --pp7: #9085e9;
     --t-cis: #f5a19b; --t-cis-soft: #3d2222;
     color-scheme: dark;
   }
@@ -74,7 +74,7 @@
   --s-done-bg: #193728; --s-done-fg: #93dcb2; --s-stuck-bg: #3d2020; --s-stuck-fg: #f5a39c; --p-red: #f07a72; --c-requested: #c97a2a; --c-in: #1a9b95; --c-working: #5c7fe6; --c-queries: #d0578c; --c-awaiting: #ad8a10; --c-reviewed: #9e7af0; --c-confirm: #1d93c6; --c-complete: #2c9a60; --s-conf-bg: #16323f; --s-conf-fg: #8fd0f0; --p-amber: #f2b061; --p-green: #6fd09a;
   --t-overview: #c9cee0; --t-overview-soft: #272c3b; --t-vat1: #94abff; --t-vat1-soft: #222c4d; --t-vat2: #6fd6d1; --t-vat2-soft: #173634;
   --t-vat3: #c3a6ff; --t-vat3-soft: #2c2348; --t-vatm: #f5a3cf; --t-vatm-soft: #3c2133;
-  --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #8fd9a6; --t-bookkeeping-soft: #1a3424; --t-adhoc: #6cc58c; --t-adhoc-soft: #10301d; --pp0: #4a4f5e; --pp1: #3987e5; --pp2: #d95926; --pp3: #199e70; --pp4: #c98500; --pp5: #d55181; --pp6: #008300; --pp7: #9085e9;
+  --t-mtd: #f6bd7c; --t-mtd-soft: #3a2b1a; --t-bookkeeping: #f5a3cf; --t-bookkeeping-soft: #3c2133; --t-adhoc: #f07dbb; --t-adhoc-soft: #2c1222; --pp0: #4a4f5e; --pp1: #3987e5; --pp2: #d95926; --pp3: #199e70; --pp4: #c98500; --pp5: #d55181; --pp6: #008300; --pp7: #9085e9;
   --t-cis: #f5a19b; --t-cis-soft: #3d2222;
   color-scheme: dark;
 }
@@ -495,6 +495,11 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
 .wl-bar > span { display: block; height: 100%; border-radius: 999px; }
 .wl-row b { font-family: var(--f-display); font-size: 1.05rem; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
 .wl-row small { font-size: 0.78rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Monthly VAT */
+.typewrap { display: inline-flex; align-items: center; gap: 8px 12px; margin-left: 10px; flex-wrap: wrap; }
+.mbadge { flex: none; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 999px; padding: 1px 8px; }
+td.co .co-in:has(> .mbadge:not([hidden])) input { flex-basis: calc(100% - 110px); }
 </style>
 </head>
 <body>
@@ -535,6 +540,8 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
   <div class="firmbar">
     <span class="firmlabel" id="firmLabel">Show clients of</span>
     <div class="seg" role="radiogroup" aria-labelledby="firmLabel" id="firmSeg"></div>
+    <span class="typewrap" id="typeWrap"><span class="firmlabel" id="typeLabel">VAT returns</span>
+    <div class="seg" role="radiogroup" aria-labelledby="typeLabel" id="typeSeg"></div></span>
   </div>
 
   <section class="tally" id="tally" aria-label="Status totals"></section>
@@ -550,8 +557,8 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
         <select id="newFirm"></select>
       </div>
       <div class="field" id="newKindWrap" hidden>
-        <label for="newKind">List</label>
-        <select id="newKind"><option value="">Monthly</option><option value="adhoc">Ad hoc</option></select>
+        <label for="newKind" id="newKindLabel">List</label>
+        <select id="newKind"></select>
       </div>
       <button class="btn primary" type="submit" id="addBtn">Add company</button>
     </form>
@@ -615,7 +622,6 @@ const TABS = [
   { id: "vat1", kicker: "VAT", label: "Mar Jun Sep Dec", title: "VAT · quarters ending Mar, Jun, Sep, Dec", vat: true },
   { id: "vat2", kicker: "VAT", label: "Apr Jul Oct Jan", title: "VAT · quarters ending Apr, Jul, Oct, Jan", vat: true },
   { id: "vat3", kicker: "VAT", label: "May Aug Nov Feb", title: "VAT · quarters ending May, Aug, Nov, Feb", vat: true },
-  { id: "vatm", kicker: "VAT", label: "Monthly", title: "VAT · monthly returns", vat: true },
   { id: "mtd", kicker: "MTD", label: "Income Tax", title: "MTD for Income Tax · quarterly updates", sep: true, firms: ["Sheards full service", "Sheards", "BCL"] },
   { id: "bookkeeping", kicker: "Monthly", label: "Bookkeeping", title: "Monthly bookkeeping", sep: true, subs: true },
   { id: "cis", kicker: "Monthly", label: "CIS", title: "CIS returns" },
@@ -673,7 +679,7 @@ let cfg = (() => { try { return JSON.parse(localStorage.getItem("jt-gh") || "{}"
 if (!cfg.repo && DEFAULT_REPO) cfg.repo = DEFAULT_REPO;
 function saveCfg() { try { localStorage.setItem("jt-gh", JSON.stringify(cfg)); } catch (e) {} }
 
-let pending = 0, fileSha = null, flushing = null, flushTimer = null;
+let pending = 0, fileSha = null, flushing = null, flushTimer = null, migrateQueued = false;
 const ops = [];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -698,7 +704,28 @@ async function ghGet() {
   const j = await r.json();
   const data = JSON.parse(b64dec(j.content || "") || "{}");
   if (!Array.isArray(data.jobs)) data.jobs = [];
+  data._migrated = migrateMonthly(data);
   return { sha: j.sha, data };
+}
+// Monthly VAT clients used to have their own tab. Each one now sits on all three quarter tabs,
+// one record per tab, tracking the month that falls on that tab (e.g. Sept on Mar Jun Sep Dec).
+const QUARTER_TABS = ["vat1", "vat2", "vat3"];
+function tabForMonth(m) { return [3, 6, 9, 12].includes(m) ? "vat1" : [1, 4, 7, 10].includes(m) ? "vat2" : "vat3"; }
+function migrateMonthly(data) {
+  const arr = data.jobs; let changed = false;
+  const now = new Date(), lastEnded = new Date(now.getFullYear(), now.getMonth(), 0).getMonth() + 1;
+  arr.slice().forEach(j => {
+    if (j.tab !== "vatm") return;
+    changed = true;
+    const home = tabForMonth(lastEnded);
+    j.tab = home; j.monthly = "yes"; j.mgroup = j.mgroup || j.id;
+    QUARTER_TABS.filter(t => t !== home).forEach(t => {
+      const id = j.id + "-" + t;
+      if (arr.some(x => x.id === id)) return;
+      arr.push({ id, tab: t, firm: j.firm, monthly: "yes", mgroup: j.mgroup, company: j.company, status: "", communicator: j.communicator || "", preparer: j.preparer || "", reviewer: j.reviewer || "", billed: "", fee: j.fee || "", subitems: "", updated: j.updated || "", updatedBy: j.updatedBy || "" });
+    });
+  });
+  return changed;
 }
 function serialise(data) { return '{"jobs": [\n' + data.jobs.map(j => JSON.stringify(j)).join(",\n") + "\n]}\n"; }
 async function ghPut(data, sha, message) {
@@ -722,6 +749,8 @@ function applyOps(data, list) {
       if (!arr.some(x => x.id === op.job.id)) arr.push(op.job);
     } else if (op.t === "remove") {
       const i = arr.findIndex(x => x.id === op.id); if (i >= 0) arr.splice(i, 1);
+    } else if (op.t === "migrate") {
+      migrateMonthly(data);
     } else if (op.t === "clear") {
       const ids = new Set(op.ids);
       if (op.kind === "wipe") data.jobs = arr.filter(x => !ids.has(x.id));
@@ -739,7 +768,8 @@ function commitMessage(list) {
   const who = cfg.name ? cfg.name + ": " : "";
   if (list.length !== 1) return `${who}${list.length} changes`;
   const op = list[0];
-  if (op.t === "add") return `${who}Added ${op.job.company}`;
+  if (op.t === "migrate") return `${who}Moved monthly VAT clients onto the quarter tabs`;
+  if (op.t === "add") return `${who}Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `${who}Removed ${op.company || "a company"}`;
   if (op.t === "clear") return `${who}${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
   const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" ? "updated" : (op.value || "—");
@@ -788,20 +818,31 @@ function saving(delta) {
 }
 
 // The same calls the rest of the page already uses
+const SHARED_FIELDS = ["company", "firm", "preparer", "reviewer", "fee"];   // same on every month of a monthly client
 function patch(id, fields) {
   const j = jobs.get(id); if (!j) return Promise.resolve();
-  jobs.set(id, { ...j, ...fields }); render();
-  return Promise.all(Object.entries(fields).map(([k, v]) => enqueue({ t: "update", id, field: k, value: v, company: j.company }))).catch(() => refresh(true));
+  const targets = [[id, fields]];
+  if (j.mgroup) {
+    const shared = Object.fromEntries(Object.entries(fields).filter(([k]) => SHARED_FIELDS.includes(k)));
+    if (Object.keys(shared).length) [...jobs.entries()].forEach(([oid, o]) => { if (oid !== id && o.mgroup === j.mgroup) targets.push([oid, shared]); });
+  }
+  targets.forEach(([tid, f]) => jobs.set(tid, { ...jobs.get(tid), ...f })); render();
+  return Promise.all(targets.flatMap(([tid, f]) => Object.entries(f).map(([k, v]) => enqueue({ t: "update", id: tid, field: k, value: v, company: j.company })))).catch(() => refresh(true));
 }
-async function addJob(name, firm, adhoc) {
-  const job = { id: Math.random().toString(36).slice(2, 12) + Date.now().toString(36), tab, firm, adhoc: adhoc ? "yes" : "", company: name, status: "", communicator: "", preparer: "", reviewer: "", billed: "", subitems: "", updated: new Date().toISOString(), updatedBy: cfg.name || "" };
-  jobs.set(job.id, job); render();
-  try { await enqueue({ t: "add", job }); } catch (e) { refresh(true); }
+async function addJob(name, firm, kind) {
+  const base = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+  const mk = (id, t, extra) => ({ id, tab: t, firm, adhoc: kind === "adhoc" ? "yes" : "", company: name, status: "", communicator: "", preparer: "", reviewer: "", billed: "", fee: "", subitems: "", updated: new Date().toISOString(), updatedBy: cfg.name || "", ...extra });
+  const list = kind === "monthly" && QUARTER_TABS.includes(tab)
+    ? QUARTER_TABS.map(t => mk(t === tab ? base : base + "-" + t, t, { monthly: "yes", mgroup: base }))
+    : [mk(base, tab, {})];
+  list.forEach(j => jobs.set(j.id, j)); render();
+  try { await Promise.all(list.map(job => enqueue({ t: "add", job }))); } catch (e) { refresh(true); }
 }
 function removeJob(id) {
   const j = jobs.get(id);
-  jobs.delete(id); render();
-  return enqueue({ t: "remove", id, company: j && j.company }).catch(() => refresh(true));
+  const ids = j && j.mgroup ? [...jobs.entries()].filter(([, o]) => o.mgroup === j.mgroup).map(([oid]) => oid) : [id];
+  ids.forEach(x => jobs.delete(x)); render();
+  return Promise.all(ids.map(x => enqueue({ t: "remove", id: x, company: j && j.company }))).catch(() => refresh(true));
 }
 async function call(fn, tabId, firm, kind) { // only used for the end-of-period clear
   if (fn !== "clearTab") return;
@@ -819,6 +860,7 @@ async function refresh(force) {
     const { sha, data } = await ghGet();
     if (!force && (pending > 0 || flushing || ops.length)) return;
     if (sha !== fileSha || force) { fileSha = sha; jobs = new Map(data.jobs.map(j => [j.id, j])); render(); }
+    if (data._migrated && !migrateQueued) { migrateQueued = true; enqueue({ t: "migrate" }).catch(() => { migrateQueued = false; }); }
     $("saveState").classList.remove("local"); $("saveState").textContent = "All changes saved";
   } catch (e) {
     $("saveState").classList.add("local");
@@ -854,6 +896,7 @@ function initConnect() {
       const { sha, data } = await ghGet();
       saveCfg(); fileSha = sha; jobs = new Map(data.jobs.map(j => [j.id, j]));
       $("connect").hidden = true; render(); toast(`Connected. ${data.jobs.length} jobs loaded.`);
+      if (data._migrated && !migrateQueued) { migrateQueued = true; enqueue({ t: "migrate" }).catch(() => { migrateQueued = false; }); }
       $("saveState").classList.remove("local"); $("saveState").textContent = "All changes saved";
     } catch (err) {
       cfg = prev; $("cMsg").textContent = err.message; $("cMsg").hidden = false;
@@ -889,7 +932,8 @@ function buildStatic() {
     e.preventDefault();
     const name = $("newName").value.trim(); if (!name) return;
     $("newName").value = "";
-    await addJob(name, $("newFirm").value, tab === "bookkeeping" && $("newKind").value === "adhoc");
+    await addJob(name, $("newFirm").value, $("newKindWrap").hidden ? "" : $("newKind").value);
+    $("newKind").value = "";
     $("newName").focus();
   });
 
@@ -929,6 +973,9 @@ function buildStatic() {
 }
 const firmEls = new Map();
 const isAdhoc = j => j.adhoc === "yes" || j.adhoc === true;
+const isMonthly = j => j.monthly === "yes" || j.monthly === true;
+let vatType = store.get("jt-vtype") || "";   // "" all, "q" quarterly only, "m" monthly only
+const typeMatch = j => !vatType || (vatType === "m" ? isMonthly(j) : !isMonthly(j));
 const SECTIONS = [...ALL_FIRMS.map(f => ({ key: f, firm: f, adhoc: false })), { key: "Sheards|adhoc", firm: "Sheards", adhoc: true }, { key: "BCL|adhoc", firm: "BCL", adhoc: true }];
 
 async function bulk(kind) {
@@ -984,7 +1031,24 @@ function renderTabs() {
   requestAnimationFrame(updateTabNav);
 }
 
+function renderTypeSeg() {
+  const show = QUARTER_TABS.includes(tab) || !!cur().overview;
+  $("typeWrap").hidden = !show;
+  if (!show) return;
+  const seg = $("typeSeg"); seg.textContent = "";
+  const base = cur().overview ? [...jobs.values()].filter(j => TABS.some(t => !t.overview && t.id === tabOf(j))) : list().map(([, j]) => j);
+  [["", "All"], ["q", "Quarterly"], ["m", "Monthly"]].forEach(([v, l]) => {
+    const b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", vatType === v ? "true" : "false");
+    const n = base.filter(j => !v || (v === "m" ? isMonthly(j) : !isMonthly(j))).length;
+    const c = document.createElement("span"); c.className = "c"; c.textContent = n;
+    b.append(l, c);
+    b.addEventListener("click", () => { vatType = v; store.set("jt-vtype", v); render(); });
+    seg.append(b);
+  });
+}
 function renderFirmSeg() {
+  renderTypeSeg();
   const seg = $("firmSeg"); seg.textContent = "";
   const fs = firmsFor(), af = activeFirm();
   [["", fs.length > 2 ? "All" : "Both"], ...fs.map(f => [f, f])].forEach(([v, l]) => {
@@ -1391,7 +1455,8 @@ function makeRow(id) {
   const prog = document.createElement("div"); prog.className = "subprog"; prog.hidden = true;
   prog.innerHTML = '<div class="mb"><span></span></div><span class="pc"></span>';
   const dl = document.createElement("span"); dl.className = "dl"; dl.hidden = true;
-  const coIn = document.createElement("div"); coIn.className = "co-in"; coIn.append(tog, name, prog, dl);
+  const mbadge = document.createElement("span"); mbadge.className = "mbadge"; mbadge.textContent = "Monthly"; mbadge.hidden = true; mbadge.title = "Monthly VAT client: this row tracks the month that falls on this tab";
+  const coIn = document.createElement("div"); coIn.className = "co-in"; coIn.append(tog, name, mbadge, prog, dl);
   c1.append(coIn);
   const st = makeSelect("status", STATUSES.map(s => ({ v: s.id, l: s.opt || s.label })), v => { st.dataset.s = v; patch(id, { status: v }); }, "Status");
   st.id = "status-" + id;
@@ -1406,7 +1471,7 @@ function makeRow(id) {
   const rm = document.createElement("button"); rm.type = "button"; rm.className = "rm"; rm.textContent = "Remove";
   rm.addEventListener("click", () => {
     if (rm.classList.contains("arm")) { removeJob(id); return; }
-    rm.classList.add("arm"); rm.textContent = "Confirm remove";
+    rm.classList.add("arm"); rm.textContent = jobs.get(id) && jobs.get(id).mgroup ? "Remove from all 3 tabs" : "Confirm remove";
     setTimeout(() => { rm.classList.remove("arm"); rm.textContent = "Remove"; }, 3500);
   });
   c6.append(rm);
@@ -1431,7 +1496,7 @@ function makeRow(id) {
   box.append(listEl, form); subTd.append(box); subTr.append(subTd);
   const grp = document.createElement("tbody"); grp.className = "job"; grp.dataset.id = id;
   grp.append(tr, subTr);
-  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, subTr, subTd, list: listEl, subIn, subBtn };
+  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, subTr, subTd, list: listEl, subIn, subBtn };
   return grp;
 }
 function syncRow(tr, j, isVat) {
@@ -1443,6 +1508,7 @@ function syncRow(tr, j, isVat) {
   if (act !== f.rev) f.rev.value = j.reviewer || "";
   if (act !== f.per) f.per.value = tabOf(j);
   f.perCell.hidden = true; // VAT period column removed: the tab itself shows the period
+  f.mbadge.hidden = !isMonthly(j);
   [f.name, f.st, f.com, f.pre, f.rev, f.per, f.rm, f.subIn, f.subBtn].forEach(el => el.disabled = readOnly);
   const t = cur(), hasSubs = !!t.subs, id = tr.dataset.id;
   const n = subsOf(j).length;
@@ -1481,7 +1547,12 @@ function renderLists() {
   const fs = firmsFor(), af = activeFirm();
   const nf = $("newFirm");
   if (nf.dataset.tab !== tab) { const keep = nf.value; nf.textContent = ""; fs.forEach(f => nf.append(opt(f, f))); if (fs.includes(keep)) nf.value = keep; nf.dataset.tab = tab; }
-  $("newKindWrap").hidden = tab !== "bookkeeping";
+  const kinds = tab === "bookkeeping" ? [["", "Monthly"], ["adhoc", "Ad hoc"]] : QUARTER_TABS.includes(tab) ? [["", "Quarterly"], ["monthly", "Monthly"]] : null;
+  $("newKindWrap").hidden = !kinds;
+  if (kinds && $("newKind").dataset.tab !== tab) {
+    $("newKind").textContent = ""; kinds.forEach(([v, l]) => $("newKind").append(opt(v, l)));
+    $("newKind").dataset.tab = tab; $("newKindLabel").textContent = tab === "bookkeeping" ? "List" : "VAT returns";
+  }
   SECTIONS.forEach(({ key, firm: f, adhoc }) => {
     const els = firmEls.get(key);
     els.sec.hidden = !fs.includes(f) || (!!af && af !== f) || (adhoc && tab !== "bookkeeping");
@@ -1501,7 +1572,8 @@ function renderLists() {
       (!fSt || (fSt === "__none" ? !j.status : j.status === fSt)) &&
       pm(j.communicator, fCom) && pm(j.preparer, fPre) && pm(j.reviewer, fRev) &&
       (!hide || j.status !== "complete") &&
-      (!behindOnly || isBehind(j)))
+      (!behindOnly || isBehind(j)) &&
+      (!QUARTER_TABS.includes(tab) || typeMatch(j)))
       .sort((a, b) => (a[1].company || "").localeCompare(b[1].company || "", "en", { sensitivity: "base" }));
 
     const keep = new Set(shown.map(([id]) => id));
@@ -1607,7 +1679,7 @@ function renderOverview() {
   const fBill = $("fBill").value;
   $("clearFilters").hidden = !(q || fSt || fCom || fPre || fRev || fJob || fBill || hide || behindOnly);
 
-  const all = [...jobs.entries()].filter(([, j]) => JOB_TABS.some(t => t.id === tabOf(j)) && ovFirmMatch(j, firm));
+  const all = [...jobs.entries()].filter(([, j]) => JOB_TABS.some(t => t.id === tabOf(j)) && ovFirmMatch(j, firm) && typeMatch(j));
   const scope = fJob ? all.filter(([, j]) => tabOf(j) === fJob) : all;
   const nAll = scope.length;
   const nDone = scope.filter(([, j]) => j.status === "complete").length;
@@ -1686,7 +1758,7 @@ function renderOverview() {
     const ppl = [j.preparer, j.reviewer];
     return `<tr class="${ds && ds.state === "behind" ? "behind" : ""}">
       <td class="cco"><button type="button" class="co-link" data-tab="${t.id}" data-co="${esc(j.company)}" title="Open on its tab">${esc(j.company)}</button>
-        <span class="cmeta"><i class="ov-dot" style="background:var(--t-${t.id})"></i>${esc(t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label)}${isAdhoc(j) ? " · Ad hoc" : ""} · ${esc(j.firm || "Sheards")}</span></td>
+        <span class="cmeta"><i class="ov-dot" style="background:var(--t-${t.id})"></i>${esc(t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label)}${isAdhoc(j) ? " · Ad hoc" : ""}${isMonthly(j) ? " · Monthly" : ""} · ${esc(j.firm || "Sheards")}</span></td>
       <td><span class="pill" data-s="${esc(j.status || "")}">${esc(j.status ? STATUS_LABEL[j.status] || j.status : "Not set")}</span>${sub ? " " + sub : ""}</td>
       <td>${dl}</td>
       ${ppl.map(p => `<td class="cppl">${p ? esc(p) : `<span class="muted">—</span>`}</td>`).join("")}
