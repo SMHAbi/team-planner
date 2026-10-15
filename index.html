@@ -500,6 +500,10 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
 .typewrap { display: inline-flex; align-items: center; gap: 8px 12px; margin-left: 10px; flex-wrap: wrap; }
 .mbadge { flex: none; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 999px; padding: 1px 8px; }
 td.co .co-in:has(> .mbadge:not([hidden])) input { flex-basis: calc(100% - 110px); }
+
+/* Status changed */
+.when { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 0.86rem; }
+td.whencell { width: 1%; padding-right: 14px; }
 </style>
 </head>
 <body>
@@ -756,7 +760,7 @@ function applyOps(data, list) {
       if (op.kind === "wipe") data.jobs = arr.filter(x => !ids.has(x.id));
       else arr.forEach(j => {
         if (!ids.has(j.id)) return;
-        j.status = ""; j.billed = ""; j.updated = op.at; j.updatedBy = op.by;
+        j.status = ""; j.billed = ""; j.statusAt = ""; j.statusBy = ""; j.updated = op.at; j.updatedBy = op.by;
         if (j.subitems) { try { j.subitems = JSON.stringify(subsOf(j).map(x => ({ ...x, status: "", weeks: {} }))); } catch (e) {} }
       });
     }
@@ -764,7 +768,9 @@ function applyOps(data, list) {
   return data;
 }
 const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of" };
-function commitMessage(list) {
+function commitMessage(all) {
+  const list = all.filter(o => !(o.t === "update" && (o.field === "statusAt" || o.field === "statusBy")));
+  if (!list.length) list.push(all[0]);
   const who = cfg.name ? cfg.name + ": " : "";
   if (list.length !== 1) return `${who}${list.length} changes`;
   const op = list[0];
@@ -772,7 +778,7 @@ function commitMessage(list) {
   if (op.t === "add") return `${who}Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `${who}Removed ${op.company || "a company"}`;
   if (op.t === "clear") return `${who}${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
-  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" ? "updated" : (op.value || "—");
+  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" ? "updated" : op.field === "statusAt" || op.field === "statusBy" ? "recorded" : (op.value || "—");
   return `${who}${op.company || ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
 }
 function enqueue(op) {
@@ -821,6 +827,7 @@ function saving(delta) {
 const SHARED_FIELDS = ["company", "firm", "preparer", "reviewer", "fee"];   // same on every month of a monthly client
 function patch(id, fields) {
   const j = jobs.get(id); if (!j) return Promise.resolve();
+  if ("status" in fields && fields.status !== (j.status || "")) fields = { ...fields, statusAt: fields.status ? new Date().toISOString() : "", statusBy: fields.status ? (cfg.name || "") : "" };
   const targets = [[id, fields]];
   if (j.mgroup) {
     const shared = Object.fromEntries(Object.entries(fields).filter(([k]) => SHARED_FIELDS.includes(k)));
@@ -849,7 +856,7 @@ async function call(fn, tabId, firm, kind) { // only used for the end-of-period 
   const t = TABS.find(x => x.id === tabId);
   const ids = list(tabId, firm).map(([id]) => id);
   if (kind === "wipe") ids.forEach(id => jobs.delete(id));
-  else ids.forEach(id => { const j = jobs.get(id); if (j) jobs.set(id, { ...j, status: "", billed: "", subitems: j.subitems ? JSON.stringify(subsOf(j).map(x => ({ ...x, status: "", weeks: {} }))) : j.subitems }); });
+  else ids.forEach(id => { const j = jobs.get(id); if (j) jobs.set(id, { ...j, status: "", billed: "", statusAt: "", statusBy: "", subitems: j.subitems ? JSON.stringify(subsOf(j).map(x => ({ ...x, status: "", weeks: {} }))) : j.subitems }); });
   render();
   return enqueue({ t: "clear", ids, kind, label: (t ? t.title : tabId) + (firm ? " · " + firm : "") });
 }
@@ -973,6 +980,21 @@ function buildStatic() {
 }
 const firmEls = new Map();
 const isAdhoc = j => j.adhoc === "yes" || j.adhoc === true;
+function whenText(iso) {
+  if (!iso) return "";
+  const d = new Date(iso); if (isNaN(d)) return "";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const t = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((day(new Date()) - day(d)) / 86400000);
+  if (diff === 0) return "Today, " + t;
+  if (diff === 1) return "Yesterday, " + t;
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) + (d.getFullYear() !== new Date().getFullYear() ? " " + d.getFullYear() : "");
+}
+function whenTitle(j) {
+  if (!j.statusAt) return "The date appears here the next time the status is changed.";
+  return "Status changed on " + new Date(j.statusAt).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
 const isMonthly = j => j.monthly === "yes" || j.monthly === true;
 let vatType = store.get("jt-vtype") || "";   // "" all, "q" quarterly only, "m" monthly only
 const typeMatch = j => !vatType || (vatType === "m" ? isMonthly(j) : !isMonthly(j));
@@ -1465,7 +1487,9 @@ function makeRow(id) {
   const pre = makeSelect("", ppl, v => patch(id, { preparer: v }), "Preparer"); pre.id = "pre-" + id;
   const rev = makeSelect("", ppl, v => patch(id, { reviewer: v }), "Reviewer"); rev.id = "rev-" + id;
   const per = makeSelect("", VAT_TABS.map(t => ({ v: t.id, l: t.label })), v => patch(id, { tab: v }), "VAT period"); per.id = "per-" + id;
-  const cells = [st, pre, rev].map(el => { const c = td(); c.append(el); return c; });
+  const when = document.createElement("span"); when.className = "when";
+  const cells = [st, pre, rev, when].map(el => { const c = td(); c.append(el); return c; });
+  cells[3].className = "whencell";
   const c5 = td(); c5.className = "per"; c5.append(per);
   const c6 = td(); c6.className = "act";
   const rm = document.createElement("button"); rm.type = "button"; rm.className = "rm"; rm.textContent = "Remove";
@@ -1496,7 +1520,7 @@ function makeRow(id) {
   box.append(listEl, form); subTd.append(box); subTr.append(subTd);
   const grp = document.createElement("tbody"); grp.className = "job"; grp.dataset.id = id;
   grp.append(tr, subTr);
-  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, subTr, subTd, list: listEl, subIn, subBtn };
+  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, subTr, subTd, list: listEl, subIn, subBtn };
   return grp;
 }
 function syncRow(tr, j, isVat) {
@@ -1509,6 +1533,8 @@ function syncRow(tr, j, isVat) {
   if (act !== f.per) f.per.value = tabOf(j);
   f.perCell.hidden = true; // VAT period column removed: the tab itself shows the period
   f.mbadge.hidden = !isMonthly(j);
+  f.when.innerHTML = j.statusAt ? esc(whenText(j.statusAt)) : `<span class="muted">—</span>`;
+  f.when.title = whenTitle(j);
   [f.name, f.st, f.com, f.pre, f.rev, f.per, f.rm, f.subIn, f.subBtn].forEach(el => el.disabled = readOnly);
   const t = cur(), hasSubs = !!t.subs, id = tr.dataset.id;
   const n = subsOf(j).length;
@@ -1530,7 +1556,7 @@ function syncRow(tr, j, isVat) {
   f.tog.setAttribute("aria-expanded", open ? "true" : "false");
   f.tog.title = open ? "Hide sub items" : `Show sub items (${n})`;
   f.subTr.hidden = !open;
-  if (open) { f.subTd.colSpan = 5; renderSubs(tr, id, j); }
+  if (open) { f.subTd.colSpan = 6; renderSubs(tr, id, j); }
 }
 
 function renderLists() {
@@ -1542,7 +1568,7 @@ function renderLists() {
   const filtering = !!(q || fSt || fCom || fPre || fRev || $("hideDone").checked || behindOnly);
   $("clearFilters").hidden = !filtering;
   const hide = $("hideDone").checked;
-  const cols = ["Company", "Status", "Preparer", "Reviewer", ""];
+  const cols = ["Company", "Status", "Preparer", "Reviewer", "Status changed", ""];
 
   const fs = firmsFor(), af = activeFirm();
   const nf = $("newFirm");
@@ -1763,7 +1789,8 @@ function renderOverview() {
       <td>${dl}</td>
       ${ppl.map(p => `<td class="cppl">${p ? esc(p) : `<span class="muted">—</span>`}</td>`).join("")}
       <td class="cfee"><span class="feebox"><span>£</span><input type="text" inputmode="decimal" class="fee" id="fee-${esc(id)}" data-id="${esc(id)}" value="${esc(feeOf(j) ? (feeOf(j) % 1 ? feeOf(j).toFixed(2) : String(feeOf(j))) : "")}" placeholder="0" ${readOnly ? "disabled" : ""} aria-label="Fee: ${esc(j.company)}"></span></td>
-      <td class="cbill"><label class="billbox"><input type="checkbox" class="bill" data-id="${esc(id)}" ${isBilled(j) ? "checked" : ""} ${readOnly ? "disabled" : ""} aria-label="Billed: ${esc(j.company)}"><span>${isBilled(j) ? "Billed" : "Not billed"}</span></label></td></tr>`;
+      <td class="cbill"><label class="billbox"><input type="checkbox" class="bill" data-id="${esc(id)}" ${isBilled(j) ? "checked" : ""} ${readOnly ? "disabled" : ""} aria-label="Billed: ${esc(j.company)}"><span>${isBilled(j) ? "Billed" : "Not billed"}</span></label></td>
+      <td class="when" title="${esc(whenTitle(j))}">${j.statusAt ? esc(whenText(j.statusAt)) : `<span class="muted">—</span>`}</td></tr>`;
   }).join("");
   const jobName = fJob ? (TABS.find(t => t.id === fJob) || {}).title : "";
 
@@ -1806,8 +1833,8 @@ function renderOverview() {
     ${workload}
     <section class="ov-card" id="ovAll"><h2><span>${jobName ? esc(jobName) : "All jobs"}${fJob ? ` <button type="button" class="chip-x" id="clearJob" title="Show all lists">✕ all lists</button>` : ""}</span>
       <small class="ovall-r">${billSeg}<span>${shown.length} ${shown.length === 1 ? "job" : "jobs"}${shown.length !== nAll ? " match" : ""}</span></small></h2>
-      ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th></tr></thead><tbody>${jobRows}</tbody>
-      <tfoot><tr><td colspan="5">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td></tr></tfoot></table></div>` : `<p class="ov-more">No jobs match the current filters.</p>`}
+      ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th><th>Status changed</th></tr></thead><tbody>${jobRows}</tbody>
+      <tfoot><tr><td colspan="5">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>` : `<p class="ov-more">No jobs match the current filters.</p>`}
       ${shown.length > LIMIT ? `<div class="ov-more"><button type="button" class="btn" id="showAllJobs">Show all ${shown.length} jobs</button></div>` : (ovShowAll && shown.length > 25 ? `<div class="ov-more"><button type="button" class="btn" id="showFewer">Show fewer</button></div>` : "")}</section>`;
 
   host.querySelectorAll(".chart-card").forEach(cd => cd.addEventListener("click", () => {
