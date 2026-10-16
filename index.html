@@ -184,7 +184,33 @@ button:focus-visible, input[type="checkbox"]:focus-visible { outline: 2px solid 
 .bar { width: 110px; height: 8px; border-radius: 999px; background: var(--s-in-bg); overflow: hidden; }
 .bar > span { display: block; height: 100%; border-radius: 999px; background: var(--s-done-fg); }
 .scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 860px; }
+table { width: 100%; border-collapse: collapse; min-width: 900px; }
+/* name on the first line; due date, software and badges underneath */
+td.co .co-in input { flex: 1 1 calc(100% - 44px); }
+td.co select.software { flex: none; width: auto; min-width: 0; max-width: 130px; min-height: 24px; height: 24px; font-size: 0.74rem; font-weight: 700; padding: 0 22px 0 10px; border-radius: 999px; border: 1px solid var(--line); background-color: var(--surface); color: var(--muted); background-position: right 6px center; }
+td.co select.software[data-sw=""] { border-style: dashed; font-weight: 600; }
+td.co select.software:hover { border-color: var(--muted); }
+/* Software colours */
+:root { --sw-xero: #13b5ea; --sw-xero-bg: #e3f6fd; --sw-xero-fg: #0a6f91;
+  --sw-qb-bg: #2ca01c; --sw-qb-fg: #ffffff;
+  --sw-sage-bg: #e6fbd2; --sw-sage-fg: #3d7d00;
+  --sw-kf-bg: #fde4e4; --sw-kf-fg: #b42323;
+  --sw-fa-bg: #1d2024; --sw-fa-fg: #ffffff;
+  --sw-hm-bg: #fff4c2; --sw-hm-fg: #7a5d00; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --sw-xero-bg: #11384a; --sw-xero-fg: #8fdcf7; --sw-qb-bg: #2ca01c; --sw-qb-fg: #ffffff; --sw-sage-bg: #24380f; --sw-sage-fg: #b6ec7c;
+  --sw-kf-bg: #3f1d1d; --sw-kf-fg: #f5a3a3; --sw-fa-bg: #000000; --sw-fa-fg: #ffffff; --sw-hm-bg: #3d3412; --sw-hm-fg: #f5d77a; } }
+:root[data-theme="dark"] {
+  --sw-xero-bg: #11384a; --sw-xero-fg: #8fdcf7; --sw-qb-bg: #2ca01c; --sw-qb-fg: #ffffff; --sw-sage-bg: #24380f; --sw-sage-fg: #b6ec7c;
+  --sw-kf-bg: #3f1d1d; --sw-kf-fg: #f5a3a3; --sw-fa-bg: #000000; --sw-fa-fg: #ffffff; --sw-hm-bg: #3d3412; --sw-hm-fg: #f5d77a; }
+select.software { font-weight: 600; border-radius: 999px; padding-inline: 12px; }
+td.co select.software[data-sw="Xero"], select.software[data-sw="Xero"] { background: var(--sw-xero-bg); color: var(--sw-xero-fg); border-color: transparent; }
+td.co select.software[data-sw="QuickBooks"], select.software[data-sw="QuickBooks"] { background: var(--sw-qb-bg); color: var(--sw-qb-fg); border-color: transparent; }
+td.co select.software[data-sw="Sage"], select.software[data-sw="Sage"] { background: var(--sw-sage-bg); color: var(--sw-sage-fg); border-color: transparent; }
+td.co select.software[data-sw="KashFlow"], select.software[data-sw="KashFlow"] { background: var(--sw-kf-bg); color: var(--sw-kf-fg); border-color: transparent; }
+td.co select.software[data-sw="FreeAgent"], select.software[data-sw="FreeAgent"] { background: var(--sw-fa-bg); color: var(--sw-fa-fg); border-color: transparent; }
+td.co select.software[data-sw="Hammock"], select.software[data-sw="Hammock"] { background: var(--sw-hm-bg); color: var(--sw-hm-fg); border-color: transparent; }
+select.software option { background: var(--surface); color: var(--ink); }
 td.billcell { width: 1%; white-space: nowrap; }
 th { text-align: left; font-size: 0.74rem; font-weight: 600; color: var(--muted); padding: 10px 10px; background: var(--surface-2); border-block: 1px solid var(--line); white-space: nowrap; }
 td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; transition: background .12s; }
@@ -767,7 +793,7 @@ function applyOps(data, list) {
   }
   return data;
 }
-const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of" };
+const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of", software: "software" };
 function commitMessage(all) {
   const list = all.filter(o => !(o.t === "update" && (o.field === "statusAt" || o.field === "statusBy")));
   if (!list.length) list.push(all[0]);
@@ -824,7 +850,8 @@ function saving(delta) {
 }
 
 // The same calls the rest of the page already uses
-const SHARED_FIELDS = ["company", "firm", "preparer", "reviewer", "fee"];   // same on every month of a monthly client
+const SHARED_FIELDS = ["company", "firm", "preparer", "reviewer", "fee", "software"];   // same on every month of a monthly client
+const SOFTWARE = ["Xero", "QuickBooks", "FreeAgent", "Sage", "KashFlow", "Hammock", "Spreadsheets", "Other"];
 function patch(id, fields) {
   const j = jobs.get(id); if (!j) return Promise.resolve();
   if ("status" in fields && fields.status !== (j.status || "")) fields = { ...fields, statusAt: fields.status ? new Date().toISOString() : "", statusBy: fields.status ? (cfg.name || "") : "" };
@@ -1486,8 +1513,10 @@ function makeRow(id) {
   const com = makeSelect("", ppl, v => patch(id, { communicator: v }), "Communicator"); com.id = "com-" + id;
   const pre = makeSelect("", ppl, v => patch(id, { preparer: v }), "Preparer"); pre.id = "pre-" + id;
   const rev = makeSelect("", ppl, v => patch(id, { reviewer: v }), "Reviewer"); rev.id = "rev-" + id;
+  const sw = makeSelect("software", [{ v: "", l: "Software" }, ...SOFTWARE.map(x => ({ v: x, l: x }))], v => { sw.dataset.sw = v; patch(id, { software: v }); }, "Software"); sw.id = "sw-" + id;
   const per = makeSelect("", VAT_TABS.map(t => ({ v: t.id, l: t.label })), v => patch(id, { tab: v }), "VAT period"); per.id = "per-" + id;
   const when = document.createElement("span"); when.className = "when";
+  coIn.append(sw);
   const cells = [st, pre, rev, when].map(el => { const c = td(); c.append(el); return c; });
   cells[3].className = "whencell";
   const c5 = td(); c5.className = "per"; c5.append(per);
@@ -1520,7 +1549,7 @@ function makeRow(id) {
   box.append(listEl, form); subTd.append(box); subTr.append(subTd);
   const grp = document.createElement("tbody"); grp.className = "job"; grp.dataset.id = id;
   grp.append(tr, subTr);
-  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, subTr, subTd, list: listEl, subIn, subBtn };
+  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, sw, subTr, subTd, list: listEl, subIn, subBtn };
   return grp;
 }
 function syncRow(tr, j, isVat) {
@@ -1535,7 +1564,12 @@ function syncRow(tr, j, isVat) {
   f.mbadge.hidden = !isMonthly(j);
   f.when.innerHTML = j.statusAt ? esc(whenText(j.statusAt)) : `<span class="muted">—</span>`;
   f.when.title = whenTitle(j);
-  [f.name, f.st, f.com, f.pre, f.rev, f.per, f.rm, f.subIn, f.subBtn].forEach(el => el.disabled = readOnly);
+  if (act !== f.sw) {
+    const v = j.software || "";
+    if (v && !SOFTWARE.includes(v) && ![...f.sw.options].some(o => o.value === v)) f.sw.append(opt(v, v)); // keep any value not in the list
+    f.sw.value = v; f.sw.dataset.sw = v;
+  }
+  [f.name, f.st, f.com, f.pre, f.rev, f.per, f.rm, f.sw, f.subIn, f.subBtn].forEach(el => el.disabled = readOnly);
   const t = cur(), hasSubs = !!t.subs, id = tr.dataset.id;
   const n = subsOf(j).length;
   f.tog.hidden = !hasSubs;
