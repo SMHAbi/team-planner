@@ -589,6 +589,14 @@ table.mx { width: 100%; min-width: 560px; border-collapse: collapse; font-varian
 .dsub { margin: 8px 0 0; font-size: 0.85rem; font-weight: 600; }
 .histbtn { position: relative; }
 .histbtn.has-notes::after { content: ""; position: absolute; top: 3px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+/* Billing type (Overview) */
+.ov-jobs td.cbill { display: table-cell; }
+.ov-jobs .cbill .billbox { vertical-align: middle; }
+select.billtype { display: inline-block; vertical-align: middle; margin-left: 6px; width: auto; min-height: 26px; height: 26px; font-size: 0.74rem; font-weight: 700; padding: 0 22px 0 10px; border-radius: 999px; border: 1px dashed var(--line); background-color: var(--surface); color: var(--muted); background-position: right 6px center; cursor: pointer; }
+select.billtype:hover { border-color: var(--muted); }
+select.billtype[data-bt="plan"] { background-color: var(--s-rev-bg); color: var(--s-rev-fg); border: 1px solid transparent; }
+select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color: var(--s-conf-fg); border: 1px solid transparent; }
 </style>
 </head>
 <body>
@@ -870,14 +878,16 @@ function applyOps(data, list) {
   }
   return data;
 }
-const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of", software: "software", notes: "notes" };
+const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of", software: "software", notes: "notes", billtype: "billing type" };
+const BILLTYPES = [["plan", "Payment plan"], ["invoiced", "Invoiced"]];
+const BILLTYPE_LABEL = Object.fromEntries(BILLTYPES);
 function tabShort(tabId) { const t = TABS.find(x => x.id === tabId); return t ? (t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label) : ""; }
 function opLine(op) {
   if (op.t === "add") return `Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `Removed ${op.company || "a company"}`;
   if (op.t === "clear") return `${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
   if (op.t !== "update") return "";
-  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" || op.field === "notes" ? "updated" : (op.value || "—");
+  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "billtype" ? (BILLTYPE_LABEL[op.value] || "Not set") : op.field === "subitems" || op.field === "notes" ? "updated" : (op.value || "—");
   return `${op.company || ""}${op.tab ? " [" + tabShort(op.tab) + "]" : ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
 }
 function commitMessage(all) {
@@ -891,7 +901,7 @@ function commitMessage(all) {
   if (op.t === "add") return `${who}Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `${who}Removed ${op.company || "a company"}`;
   if (op.t === "clear") return `${who}${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
-  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" || op.field === "notes" ? "updated" : op.field === "statusAt" || op.field === "statusBy" ? "recorded" : (op.value || "—");
+  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "billtype" ? (BILLTYPE_LABEL[op.value] || "Not set") : op.field === "subitems" || op.field === "notes" ? "updated" : op.field === "statusAt" || op.field === "statusBy" ? "recorded" : (op.value || "—");
   return `${who}${op.company || ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
 }
 function enqueue(op) {
@@ -1920,7 +1930,8 @@ function renderOverview() {
       <td>${dl}</td>
       ${ppl.map(p => `<td class="cppl">${p ? esc(p) : `<span class="muted">—</span>`}</td>`).join("")}
       <td class="cfee"><span class="feebox"><span>£</span><input type="text" inputmode="decimal" class="fee" id="fee-${esc(id)}" data-id="${esc(id)}" value="${esc(feeOf(j) ? (feeOf(j) % 1 ? feeOf(j).toFixed(2) : String(feeOf(j))) : "")}" placeholder="0" ${readOnly ? "disabled" : ""} aria-label="Fee: ${esc(j.company)}"></span></td>
-      <td class="cbill"><label class="billbox"><input type="checkbox" class="bill" data-id="${esc(id)}" ${isBilled(j) ? "checked" : ""} ${readOnly ? "disabled" : ""} aria-label="Billed: ${esc(j.company)}"><span>${isBilled(j) ? "Billed" : "Not billed"}</span></label></td>
+      <td class="cbill"><label class="billbox"><input type="checkbox" class="bill" data-id="${esc(id)}" ${isBilled(j) ? "checked" : ""} ${readOnly ? "disabled" : ""} aria-label="Billed: ${esc(j.company)}"><span>${isBilled(j) ? "Billed" : "Not billed"}</span></label>
+        <select class="billtype" data-id="${esc(id)}" data-bt="${esc(j.billtype || "")}" ${readOnly ? "disabled" : ""} aria-label="Billing type: ${esc(j.company)}"><option value="">Billing type</option>${BILLTYPES.map(([v, l]) => `<option value="${v}" ${j.billtype === v ? "selected" : ""}>${l}</option>`).join("")}</select></td>
       <td class="when" title="${esc(whenTitle(j))}">${j.statusAt ? esc(whenText(j.statusAt)) : `<span class="muted">—</span>`}</td></tr>`;
   }).join("");
   const jobName = fJob ? (TABS.find(t => t.id === fJob) || {}).title : "";
@@ -2007,6 +2018,7 @@ function renderOverview() {
     inp.addEventListener("keydown", e => { if (e.key === "Enter") inp.blur(); if (e.key === "Escape") { const j = jobs.get(inp.dataset.id); inp.value = j && feeOf(j) ? String(feeOf(j)) : ""; inp.blur(); } });
   });
   host.querySelectorAll(".bill").forEach(cb => cb.addEventListener("change", () => patch(cb.dataset.id, { billed: cb.checked ? "yes" : "" })));
+  host.querySelectorAll(".billtype").forEach(sel => sel.addEventListener("change", () => { sel.dataset.bt = sel.value; patch(sel.dataset.id, { billtype: sel.value }); }));
   host.querySelectorAll(".co-link").forEach(b => b.addEventListener("click", () => goTo(b.dataset.tab, b.dataset.co)));
 }
 
