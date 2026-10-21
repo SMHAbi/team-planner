@@ -748,9 +748,9 @@ select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color:
 
 <script>
 const TABS = [
+  { id: "vat2", kicker: "VAT", label: "Jan Apr Jul Oct", title: "VAT · quarters ending Jan, Apr, Jul, Oct", vat: true },
+  { id: "vat3", kicker: "VAT", label: "Feb May Aug Nov", title: "VAT · quarters ending Feb, May, Aug, Nov", vat: true },
   { id: "vat1", kicker: "VAT", label: "Mar Jun Sep Dec", title: "VAT · quarters ending Mar, Jun, Sep, Dec", vat: true },
-  { id: "vat2", kicker: "VAT", label: "Apr Jul Oct Jan", title: "VAT · quarters ending Apr, Jul, Oct, Jan", vat: true },
-  { id: "vat3", kicker: "VAT", label: "May Aug Nov Feb", title: "VAT · quarters ending May, Aug, Nov, Feb", vat: true },
   { id: "mtd", kicker: "MTD", label: "Income Tax", title: "MTD for Income Tax · quarterly updates", sep: true, firms: ["Sheards full service", "Sheards", "BCL"] },
   { id: "bookkeeping", kicker: "Monthly", label: "Bookkeeping", title: "Monthly bookkeeping", sep: true, subs: true },
   { id: "cis", kicker: "Monthly", label: "CIS", title: "CIS returns" },
@@ -841,7 +841,9 @@ async function ghGet() {
 }
 // Monthly VAT clients used to have their own tab. Each one now sits on all three quarter tabs,
 // one record per tab, tracking the month that falls on that tab (e.g. Sept on Mar Jun Sep Dec).
-const QUARTER_TABS = ["vat1", "vat2", "vat3"];
+const QUARTER_TABS = ["vat2", "vat3", "vat1"];
+// names the VAT tabs had before the months were put in order (still in older saves, so the history can find them)
+const OLD_TAB_NAMES = { vat2: ["VAT Apr Jul Oct Jan", "VAT · quarters ending Apr, Jul, Oct, Jan"], vat3: ["VAT May Aug Nov Feb", "VAT · quarters ending May, Aug, Nov, Feb"] };
 function tabForMonth(m) { return [3, 6, 9, 12].includes(m) ? "vat1" : [1, 4, 7, 10].includes(m) ? "vat2" : "vat3"; }
 function migrateMonthly(data) {
   const arr = data.jobs; let changed = false;
@@ -2085,13 +2087,13 @@ function historyFor(j, commits) {
     [first, ...lines.slice(1)].forEach(line => {
       let u = /^(.*?)(?: \[([^\]]+)\])?: ([a-z ]+) → (.*)$/.exec(line);
       if (u && FIELD_NAMES.has(u[3])) {
-        if (u[1].trim().toLowerCase() !== name || (u[2] && u[2] !== myTab) || u[3] === "recorded") return;
+        if (u[1].trim().toLowerCase() !== name || (u[2] && u[2] !== myTab && !(OLD_TAB_NAMES[tabOf(j)] || []).includes(u[2])) || u[3] === "recorded") return;
         out.push({ date: c.date, who, field: u[3], val: u[4] }); return;
       }
       u = /^Added (.*?)( \(monthly VAT\))?$/.exec(line);
       if (u && u[1].trim().toLowerCase() === name) { out.push({ date: c.date, who, field: "added", val: "" }); return; }
       u = /^Cleared statuses for \d+ companies on (.+)$/.exec(line);
-      if (u && title && u[1].startsWith(title) && (u[1] === title || u[1] === title + " · " + (j.firm || ""))) out.push({ date: c.date, who, field: "cleared", val: "" });
+      if (u && title && [title, ...(OLD_TAB_NAMES[tabOf(j)] || []).slice(1)].some(tt => u[1] === tt || u[1] === tt + " · " + (j.firm || ""))) out.push({ date: c.date, who, field: "cleared", val: "" });
     });
   });
   return out;   // newest first, because the save log is newest first
