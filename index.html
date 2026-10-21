@@ -501,7 +501,7 @@ tbody.job.behind > tr:first-child > td:first-child { box-shadow: inset 4px 0 0 v
 .group.adhoc .group-head h2 .ttl { color: var(--t-adhoc); }
 .group.adhoc .firm-tag { background: var(--t-adhoc); color: var(--surface); }
 /* Workload */
-.wl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; padding: 4px 20px 20px; }
+.wl-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 4px 20px 20px; }
 .wl-card { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .wl-head b { font-weight: 600; font-size: 0.98rem; display: block; }
 .wl-head small { font-size: 0.76rem; color: var(--muted); }
@@ -530,6 +530,48 @@ td.co .co-in:has(> .mbadge:not([hidden])) input { flex-basis: calc(100% - 110px)
 /* Status changed */
 .when { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 0.86rem; }
 td.whencell { width: 1%; padding-right: 14px; }
+
+/* Workload by list */
+.wl-split { display: grid; grid-template-columns: minmax(300px, 420px) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 980px) { .wl-split { grid-template-columns: minmax(0, 1fr); } }
+.wl-matrix { min-width: 0; }
+table.mx { width: 100%; min-width: 560px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.mx th, .mx td { padding: 6px 6px; border-bottom: 1px solid var(--line); text-align: center; font-size: 0.86rem; }
+.mx thead th { font-size: 0.72rem; font-weight: 600; color: var(--muted); vertical-align: bottom; line-height: 1.25; background: none; border-top: 0; white-space: normal; }
+.mx thead th i { display: block; width: 8px; height: 8px; border-radius: 2px; margin: 0 auto 4px; }
+.mx thead th span { display: block; font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.mx tbody th { text-align: left; font-weight: 600; white-space: nowrap; padding-left: 0; }
+.mx tbody th i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 8px; }
+.mx td.zero { color: var(--line); }
+.mx td.tot { font-weight: 700; }
+.mx .selc { background: var(--accent-soft); }
+.mx-c { font: inherit; font-weight: 700; min-width: 34px; border: 0; border-radius: 8px; padding: 3px 8px; cursor: pointer; background: var(--cs); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cc) 35%, transparent); }
+.mx-c:hover { box-shadow: inset 0 0 0 2px var(--cc); }
+.mx-note { margin: 8px 0 0; font-size: 0.74rem; color: var(--muted); }
+/* History */
+.histbtn { font: inherit; font-size: 1.1rem; line-height: 1; letter-spacing: 1px; color: var(--muted); background: none; border: 1px solid transparent; border-radius: 999px; padding: 3px 9px 7px; cursor: pointer; margin-right: 2px; }
+.histbtn:hover { color: var(--ink); background: var(--hover); border-color: var(--line); }
+.hshade { position: fixed; inset: 0; background: rgba(20, 22, 30, 0.28); z-index: 60; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: var(--surface); box-shadow: -10px 0 40px rgba(0,0,0,0.18); z-index: 61; display: flex; flex-direction: column; gap: 10px; padding: calc(20px + env(safe-area-inset-top, 0px)) 22px calc(20px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; }
+.dhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.dhead h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.25rem; margin: 0; line-height: 1.2; }
+.dhead p { margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
+.dclose { font: inherit; font-size: 1rem; border: 0; background: var(--surface-2); color: var(--muted); border-radius: 999px; width: 34px; height: 34px; cursor: pointer; flex: none; }
+.dclose:hover { color: var(--ink); }
+.dnow { margin: 0; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dnow small { color: var(--muted); }
+.donly { min-height: 0; font-size: 0.85rem; }
+.hlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.hlist li { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+.hlist li.ho { color: var(--muted); }
+.hlist li.hmsg { display: block; color: var(--muted); }
+.hw { display: flex; flex-direction: column; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.hw b { font-weight: 600; font-size: 0.84rem; color: var(--ink); }
+.hw small { font-size: 0.74rem; color: var(--muted); }
+.hx { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.hx small { font-size: 0.74rem; color: var(--muted); }
+.hlist .pill { font-size: 0.78rem; padding: 2px 10px; }
+.dnote { margin: 4px 0 0; font-size: 0.76rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -646,6 +688,17 @@ td.whencell { width: 1%; padding-right: 14px; }
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="hshade" id="histShade" hidden></div>
+<aside class="drawer" id="histDrawer" hidden role="dialog" aria-labelledby="histTitle">
+  <div class="dhead">
+    <div><h2 id="histTitle"></h2><p id="histSub"></p></div>
+    <button type="button" class="dclose" id="histClose" aria-label="Close history">✕</button>
+  </div>
+  <p class="dnow" id="histNow"></p>
+  <label class="check donly"><input type="checkbox" id="histOnly"> Status changes only</label>
+  <ol class="hlist" id="histList"></ol>
+  <p class="dnote" id="histNote"></p>
+</aside>
 
 <script>
 const TABS = [
@@ -674,6 +727,7 @@ const STATUSES = [
   { id: "complete", label: "Complete", c: "--s-done-fg" }
 ];
 const PEOPLE = ["Joe", "Joseph", "Abi", "Maria", "Eden", "Ellie", "Bradley"];
+const SIGN_IN = [...PEOPLE, "Andrea", "Alice", "Kinga"];   // can sign in, but aren't preparers or reviewers
 const LEGACY_VAT = { s1: "vat1", s2: "vat2", s3: "vat3", monthly: "vatm" };
 
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -794,12 +848,22 @@ function applyOps(data, list) {
   return data;
 }
 const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of", software: "software" };
+function tabShort(tabId) { const t = TABS.find(x => x.id === tabId); return t ? (t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label) : ""; }
+function opLine(op) {
+  if (op.t === "add") return `Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
+  if (op.t === "remove") return `Removed ${op.company || "a company"}`;
+  if (op.t === "clear") return `${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
+  if (op.t !== "update") return "";
+  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" ? "updated" : (op.value || "—");
+  return `${op.company || ""}${op.tab ? " [" + tabShort(op.tab) + "]" : ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
+}
 function commitMessage(all) {
   const list = all.filter(o => !(o.t === "update" && (o.field === "statusAt" || o.field === "statusBy")));
   if (!list.length) list.push(all[0]);
   const who = cfg.name ? cfg.name + ": " : "";
-  if (list.length !== 1) return `${who}${list.length} changes`;
+  if (list.length !== 1) return `${who}${list.length} changes\n\n` + list.map(opLine).filter(Boolean).slice(0, 200).join("\n");
   const op = list[0];
+  if (op.t === "update") return who + opLine(op);
   if (op.t === "migrate") return `${who}Moved monthly VAT clients onto the quarter tabs`;
   if (op.t === "add") return `${who}Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `${who}Removed ${op.company || "a company"}`;
@@ -861,7 +925,7 @@ function patch(id, fields) {
     if (Object.keys(shared).length) [...jobs.entries()].forEach(([oid, o]) => { if (oid !== id && o.mgroup === j.mgroup) targets.push([oid, shared]); });
   }
   targets.forEach(([tid, f]) => jobs.set(tid, { ...jobs.get(tid), ...f })); render();
-  return Promise.all(targets.flatMap(([tid, f]) => Object.entries(f).map(([k, v]) => enqueue({ t: "update", id: tid, field: k, value: v, company: j.company })))).catch(() => refresh(true));
+  return Promise.all(targets.flatMap(([tid, f]) => Object.entries(f).map(([k, v]) => enqueue({ t: "update", id: tid, field: k, value: v, company: j.company, tab: tabOf(jobs.get(tid) || j) })))).catch(() => refresh(true));
 }
 async function addJob(name, firm, kind) {
   const base = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
@@ -916,7 +980,7 @@ function showConnect(msg) {
   (cfg.repo ? $("cKey") : $("cRepo")).focus();
 }
 function initConnect() {
-  const nm = $("cName"); nm.append(opt("", "Choose…")); PEOPLE.forEach(n => nm.append(opt(n, n)));
+  const nm = $("cName"); nm.append(opt("", "Choose…")); SIGN_IN.forEach(n => nm.append(opt(n, n)));
   $("connectForm").addEventListener("submit", async e => {
     e.preventDefault();
     const repo = $("cRepo").value.trim().replace(/^https?:\/\/github\.com\//i, "").replace(/\.git$/, "").replace(/\/+$/, "");
@@ -1527,7 +1591,10 @@ function makeRow(id) {
     rm.classList.add("arm"); rm.textContent = jobs.get(id) && jobs.get(id).mgroup ? "Remove from all 3 tabs" : "Confirm remove";
     setTimeout(() => { rm.classList.remove("arm"); rm.textContent = "Remove"; }, 3500);
   });
-  c6.append(rm);
+  const hb = document.createElement("button"); hb.type = "button"; hb.className = "histbtn"; hb.textContent = "⋯";
+  hb.title = "History"; hb.setAttribute("aria-label", "Show history");
+  hb.addEventListener("click", () => openHistory(id));
+  c6.append(hb, rm);
   tr.append(c1, ...cells, c5, c6);
   // sub items row
   const subTr = document.createElement("tr"); subTr.className = "subrow"; subTr.hidden = true;
@@ -1853,8 +1920,17 @@ function renderOverview() {
         <i style="background:${x.c}"></i><span class="wl-n">${esc(x.label)}</span>
         <span class="wl-bar"><span style="width:${100 * x.n / max}%;background:${x.c}"></span></span>
         <b>${x.n}</b><small>${x.all}</small></button>`).join("");
+    // split by job list (uses every period, so the quarters can be compared)
+    const openAll = all.filter(([, j]) => j.status !== "complete");
+    const mPeople = PEOPLE.filter(n => all.some(([, j]) => j[role] === n));
+    const mRows = [...mPeople.map(n => ({ key: n, label: n, c: PCOL[n] })), ...(openAll.some(([, j]) => !j[role]) ? [{ key: "__none", label: "Not assigned", c: "var(--pp0)" }] : [])];
+    const cnt = (key, tabId) => openAll.filter(([, j]) => (key === "__none" ? !j[role] : j[role] === key) && (!tabId || tabOf(j) === tabId)).length;
+    const matrix = mRows.length ? `<div class="wl-matrix"><div class="scroll"><table class="mx">
+        <thead><tr><th></th>${JOB_TABS.map(t => `<th class="${fJob === t.id ? "selc" : ""}"><i style="background:var(--t-${t.id})"></i><span>${esc(t.kicker === "Monthly" ? "" : t.kicker)}</span>${esc(t.label)}</th>`).join("")}<th>Total</th></tr></thead>
+        <tbody>${mRows.map(r => `<tr><th><i style="background:${r.c}"></i>${esc(r.label)}</th>${JOB_TABS.map(t => { const n = cnt(r.key, t.id); return `<td class="${n ? "has" : "zero"}${fJob === t.id ? " selc" : ""}">${n ? `<button type="button" class="mx-c" data-f="${fid}" data-v="${esc(r.key)}" data-t="${t.id}" title="Show ${esc(r.label)}'s open ${esc(tabShort(t.id))} jobs" style="--cc:var(--t-${t.id});--cs:var(--t-${t.id}-soft)">${n}</button>` : "0"}</td>`; }).join("")}<td class="tot">${cnt(r.key)}</td></tr>`).join("")}</tbody>
+      </table></div><p class="mx-note">Open jobs in each list, across all periods. Click a number to see those jobs.</p></div>` : "";
     return `<div class="wl-card"><div class="wl-head"><b>${label}</b><small>Jobs not yet complete${selTab ? " · " + esc(selName) : ""}</small></div>
-      ${parts.length ? `<div class="wl-body">${pie(parts, open.length, open.length, "open jobs")}<div class="wl-list"><div class="wl-cols"><span></span><span></span><span></span><span>Open</span><span>Total</span></div>${rows}</div></div>` : `<p class="ov-more">Nobody is assigned yet.</p>`}</div>`;
+      ${parts.length ? `<div class="wl-split"><div class="wl-body">${pie(parts, open.length, open.length, "open jobs")}<div class="wl-list"><div class="wl-cols"><span></span><span></span><span></span><span>Open</span><span>Total</span></div>${rows}</div></div>${matrix}</div>` : `<p class="ov-more">Nobody is assigned yet.</p>`}</div>`;
   };
   const workload = `<section class="ov-card"><h2>Workload by person <small>Click a name to see their jobs below</small></h2>
     <div class="wl-grid">${workCard("preparer", "Preparers", "fPre")}${workCard("reviewer", "Reviewers", "fRev")}</div></section>`;
@@ -1884,6 +1960,10 @@ function renderOverview() {
   const sa = $("showAllJobs"); if (sa) sa.addEventListener("click", () => { ovShowAll = true; render(); });
   const sf = $("showFewer"); if (sf) sf.addEventListener("click", () => { ovShowAll = false; render(); });
   if (keep) { const el = document.getElementById(keep.id); if (el) { el.value = keep.v; el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (e) {} } }
+  host.querySelectorAll(".mx-c").forEach(b => b.addEventListener("click", () => {
+    ["fPre", "fRev"].forEach(x => $(x).value = ""); $(b.dataset.f).value = b.dataset.v; $("fJob").value = b.dataset.t;
+    render(); $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
   host.querySelectorAll(".wl-row").forEach(b => b.addEventListener("click", () => {
     const sel = $(b.dataset.f); sel.value = sel.value === b.dataset.v ? "" : b.dataset.v;
     render(); if (sel.value) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1897,8 +1977,103 @@ function renderOverview() {
   host.querySelectorAll(".co-link").forEach(b => b.addEventListener("click", () => goTo(b.dataset.tab, b.dataset.co)));
 }
 
+
+// ---------- history (read from the GitHub save log) ----------
+let commitCache = null;   // { at, list: [{ sha, date, msg }], complete }
+const HIST_PAGES = 10;
+async function ghCommits(page) {
+  const url = `https://api.github.com/repos/${cfg.repo.split("/").map(encodeURIComponent).join("/")}/commits?path=${DATA_PATH}&per_page=100&page=${page}&t=${Date.now()}`;
+  const r = await fetch(url, { headers: ghHeaders(), cache: "no-store" });
+  if (!r.ok) throw await ghFail(r);
+  return (await r.json()).map(c => ({ sha: c.sha, date: (c.commit.committer || c.commit.author || {}).date, msg: c.commit.message || "" }));
+}
+async function loadCommits() {
+  if (commitCache && Date.now() - commitCache.at < 60000) return commitCache;
+  if (!commitCache) {
+    const list = []; let complete = true;
+    for (let pg = 1; pg <= HIST_PAGES; pg++) { const got = await ghCommits(pg); list.push(...got); if (got.length < 100) break; if (pg === HIST_PAGES) complete = false; }
+    commitCache = { at: Date.now(), list, complete };
+  } else {
+    const fresh = await ghCommits(1), known = new Set(commitCache.list.map(c => c.sha));
+    commitCache.list = fresh.filter(c => !known.has(c.sha)).concat(commitCache.list);
+    commitCache.at = Date.now();
+  }
+  return commitCache;
+}
+const FIELD_NAMES = new Set(Object.values(FIELD_LABEL));
+function historyFor(j, commits) {
+  const name = (j.company || "").trim().toLowerCase(), myTab = tabShort(tabOf(j));
+  const t = TABS.find(x => x.id === tabOf(j)), title = t ? t.title : "";
+  const out = [];
+  commits.forEach(c => {
+    const lines = c.msg.split("\n").map(x => x.trim()).filter(Boolean);
+    if (!lines.length) return;
+    let who = "", first = lines[0];
+    const m = /^([^:]+): (.*)$/.exec(first);
+    if (m && SIGN_IN.includes(m[1])) { who = m[1]; first = m[2]; }
+    [first, ...lines.slice(1)].forEach(line => {
+      let u = /^(.*?)(?: \[([^\]]+)\])?: ([a-z ]+) → (.*)$/.exec(line);
+      if (u && FIELD_NAMES.has(u[3])) {
+        if (u[1].trim().toLowerCase() !== name || (u[2] && u[2] !== myTab) || u[3] === "recorded") return;
+        out.push({ date: c.date, who, field: u[3], val: u[4] }); return;
+      }
+      u = /^Added (.*?)( \(monthly VAT\))?$/.exec(line);
+      if (u && u[1].trim().toLowerCase() === name) { out.push({ date: c.date, who, field: "added", val: "" }); return; }
+      u = /^Cleared statuses for \d+ companies on (.+)$/.exec(line);
+      if (u && title && u[1].startsWith(title) && (u[1] === title || u[1] === title + " · " + (j.firm || ""))) out.push({ date: c.date, who, field: "cleared", val: "" });
+    });
+  });
+  return out;   // newest first, because the save log is newest first
+}
+const LABEL_TO_STATUS = Object.fromEntries(STATUSES.map(x => [x.label, x.id]));
+function histRow(e) {
+  const d = new Date(e.date);
+  const when = `<b>${esc(d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</b><small>${esc(d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }))}</small>`;
+  let what;
+  if (e.field === "status") what = `Status → <span class="pill" data-s="${esc(LABEL_TO_STATUS[e.val] || "")}">${esc(e.val)}</span>`;
+  else if (e.field === "added") what = "Added to the tracker";
+  else if (e.field === "cleared") what = "Statuses cleared for the new period";
+  else what = `${esc(e.field.charAt(0).toUpperCase() + e.field.slice(1))} → <b>${esc(e.val)}</b>`;
+  return `<li class="${e.field === "status" || e.field === "cleared" ? "hs" : "ho"}"><span class="hw">${when}</span><span class="hx">${what}${e.who ? `<small>by ${esc(e.who)}</small>` : ""}</span></li>`;
+}
+let histOpenId = null;
+async function openHistory(id) {
+  const j = jobs.get(id); if (!j) return;
+  histOpenId = id;
+  const t = TABS.find(x => x.id === tabOf(j));
+  $("histTitle").textContent = j.company || "";
+  $("histSub").textContent = [t ? tabShort(t.id) : "", isMonthly(j) ? "Monthly" : "", j.firm || ""].filter(Boolean).join(" · ");
+  $("histNow").innerHTML = `Now: <span class="pill" data-s="${esc(j.status || "")}">${esc(j.status ? STATUS_LABEL[j.status] : "Not set")}</span>${j.statusAt ? ` <small>since ${esc(new Date(j.statusAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small>` : ""}`;
+  $("histList").innerHTML = `<li class="hmsg">Loading history…</li>`;
+  $("histDrawer").hidden = false; $("histShade").hidden = false;
+  $("histClose").focus();
+  try {
+    const cc = await loadCommits();
+    if (histOpenId !== id) return;
+    const items = historyFor(j, cc.list);
+    renderHistory(items, cc.complete);
+  } catch (e) {
+    $("histList").innerHTML = `<li class="hmsg">${esc(e.message || "Couldn't load the history.")}</li>`;
+  }
+}
+let lastHist = null;
+function renderHistory(items, complete) {
+  lastHist = { items, complete };
+  const only = $("histOnly").checked;
+  const shown = only ? items.filter(e => e.field === "status" || e.field === "cleared") : items;
+  $("histList").innerHTML = shown.length ? shown.map(histRow).join("") : `<li class="hmsg">${only ? "No status changes saved yet." : "No changes saved yet."}</li>`;
+  $("histNote").textContent = "History covers changes made since the tracker moved to GitHub." + (complete ? "" : " Only the most recent 1,000 saves are searched.");
+}
+function closeHistory() { histOpenId = null; $("histDrawer").hidden = true; $("histShade").hidden = true; }
+function initHistory() {
+  $("histClose").addEventListener("click", closeHistory);
+  $("histShade").addEventListener("click", closeHistory);
+  $("histOnly").addEventListener("change", () => { if (lastHist) renderHistory(lastHist.items, lastHist.complete); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("histDrawer").hidden) closeHistory(); });
+}
+
 // ---------- boot ----------
-buildStatic(); initTabNav(); initConnect(); render();
+buildStatic(); initTabNav(); initConnect(); initHistory(); render();
 if (!cfg.repo || !cfg.token) { $("saveState").textContent = "Not connected"; showConnect(""); }
 else { $("saveState").textContent = "Loading…"; refresh(true); }
 setInterval(() => { if (document.visibilityState === "visible") refresh(); }, POLL_MS);
