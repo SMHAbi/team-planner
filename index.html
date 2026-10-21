@@ -572,6 +572,23 @@ table.mx { width: 100%; min-width: 560px; border-collapse: collapse; font-varian
 .hx small { font-size: 0.74rem; color: var(--muted); }
 .hlist .pill { font-size: 0.78rem; padding: 2px 10px; }
 .dnote { margin: 4px 0 0; font-size: 0.76rem; color: var(--muted); }
+
+/* Ready to bill / All jobs */
+.viewseg { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 16px 20px 0; }
+.viewseg button { font: inherit; font-weight: 600; font-size: 0.9rem; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 7px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.viewseg button:hover { color: var(--ink); }
+.viewseg button.on { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.viewseg button i { font-style: normal; font-size: 0.75rem; background: var(--surface); border-radius: 999px; padding: 1px 8px; }
+.viewseg small { color: var(--muted); font-size: 0.78rem; margin-left: 6px; }
+/* Notes */
+.dnotes { display: flex; flex-direction: column; gap: 6px; }
+.dnotes label { font-weight: 600; font-size: 0.85rem; }
+.dnotes textarea { font: inherit; font-size: 0.9rem; line-height: 1.45; width: 100%; box-sizing: border-box; resize: vertical; min-height: 96px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface-2); color: var(--ink); }
+.dnotes textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; background: var(--surface); }
+.dnotes small { font-size: 0.74rem; color: var(--muted); min-height: 1em; }
+.dsub { margin: 8px 0 0; font-size: 0.85rem; font-weight: 600; }
+.histbtn { position: relative; }
+.histbtn.has-notes::after { content: ""; position: absolute; top: 3px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 </style>
 </head>
 <body>
@@ -695,6 +712,12 @@ table.mx { width: 100%; min-width: 560px; border-collapse: collapse; font-varian
     <button type="button" class="dclose" id="histClose" aria-label="Close history">✕</button>
   </div>
   <p class="dnow" id="histNow"></p>
+  <div class="dnotes">
+    <label for="histNotes">Notes</label>
+    <textarea id="histNotes" rows="5" placeholder="Anything the team should know about this client…"></textarea>
+    <small id="notesState"></small>
+  </div>
+  <h3 class="dsub">History</h3>
   <label class="check donly"><input type="checkbox" id="histOnly"> Status changes only</label>
   <ol class="hlist" id="histList"></ol>
   <p class="dnote" id="histNote"></p>
@@ -847,14 +870,14 @@ function applyOps(data, list) {
   }
   return data;
 }
-const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of", software: "software" };
+const FIELD_LABEL = { status: "status", communicator: "communicator", preparer: "preparer", reviewer: "reviewer", billed: "billing", fee: "fee", subitems: "sub items", company: "name", tab: "list", firm: "client of", software: "software", notes: "notes" };
 function tabShort(tabId) { const t = TABS.find(x => x.id === tabId); return t ? (t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label) : ""; }
 function opLine(op) {
   if (op.t === "add") return `Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `Removed ${op.company || "a company"}`;
   if (op.t === "clear") return `${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
   if (op.t !== "update") return "";
-  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" ? "updated" : (op.value || "—");
+  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" || op.field === "notes" ? "updated" : (op.value || "—");
   return `${op.company || ""}${op.tab ? " [" + tabShort(op.tab) + "]" : ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
 }
 function commitMessage(all) {
@@ -868,7 +891,7 @@ function commitMessage(all) {
   if (op.t === "add") return `${who}Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `${who}Removed ${op.company || "a company"}`;
   if (op.t === "clear") return `${who}${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
-  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" ? "updated" : op.field === "statusAt" || op.field === "statusBy" ? "recorded" : (op.value || "—");
+  const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "subitems" || op.field === "notes" ? "updated" : op.field === "statusAt" || op.field === "statusBy" ? "recorded" : (op.value || "—");
   return `${who}${op.company || ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
 }
 function enqueue(op) {
@@ -914,7 +937,7 @@ function saving(delta) {
 }
 
 // The same calls the rest of the page already uses
-const SHARED_FIELDS = ["company", "firm", "preparer", "reviewer", "fee", "software"];   // same on every month of a monthly client
+const SHARED_FIELDS = ["company", "firm", "preparer", "reviewer", "fee", "software", "notes"];   // same on every month of a monthly client
 const SOFTWARE = ["Xero", "QuickBooks", "FreeAgent", "Sage", "KashFlow", "Hammock", "Spreadsheets", "Other"];
 function patch(id, fields) {
   const j = jobs.get(id); if (!j) return Promise.resolve();
@@ -1592,7 +1615,7 @@ function makeRow(id) {
     setTimeout(() => { rm.classList.remove("arm"); rm.textContent = "Remove"; }, 3500);
   });
   const hb = document.createElement("button"); hb.type = "button"; hb.className = "histbtn"; hb.textContent = "⋯";
-  hb.title = "History"; hb.setAttribute("aria-label", "Show history");
+  hb.title = "History and notes"; hb.setAttribute("aria-label", "Show history and notes");
   hb.addEventListener("click", () => openHistory(id));
   c6.append(hb, rm);
   tr.append(c1, ...cells, c5, c6);
@@ -1616,7 +1639,7 @@ function makeRow(id) {
   box.append(listEl, form); subTd.append(box); subTr.append(subTd);
   const grp = document.createElement("tbody"); grp.className = "job"; grp.dataset.id = id;
   grp.append(tr, subTr);
-  grp._f = { name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, sw, subTr, subTd, list: listEl, subIn, subBtn };
+  grp._f = { hb, name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, sw, subTr, subTd, list: listEl, subIn, subBtn };
   return grp;
 }
 function syncRow(tr, j, isVat) {
@@ -1631,6 +1654,8 @@ function syncRow(tr, j, isVat) {
   f.mbadge.hidden = !isMonthly(j);
   f.when.innerHTML = j.statusAt ? esc(whenText(j.statusAt)) : `<span class="muted">—</span>`;
   f.when.title = whenTitle(j);
+  f.hb.classList.toggle("has-notes", !!(j.notes || "").trim());
+  f.hb.title = (j.notes || "").trim() ? "History and notes (has notes)" : "History and notes";
   if (act !== f.sw) {
     const v = j.software || "";
     if (v && !SOFTWARE.includes(v) && ![...f.sw.options].some(o => o.value === v)) f.sw.append(opt(v, v)); // keep any value not in the list
@@ -1796,6 +1821,8 @@ function goTo(tabId, company) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 let ovShowAll = false;
+let ovView = store.get("jt-ovview") || "ready";   // "ready" = awaiting confirmation + complete, "all" = every job
+const READY = ["confirm", "complete"];
 function renderOverview() {
   const host = $("overview");
   const firm = activeFirm();
@@ -1866,7 +1893,10 @@ function renderOverview() {
 
   // list of jobs
   const order = Object.fromEntries(JOB_TABS.map((t, i) => [t.id, i]));
+  const readyView = ovView === "ready";
+  const nReady = all.filter(([, j]) => (!fJob || tabOf(j) === fJob) && READY.includes(j.status)).length;
   const shown = all.filter(([, j]) =>
+      (!readyView || READY.includes(j.status)) &&
       (!fJob || tabOf(j) === fJob) &&
       (!fBill || (fBill === "yes" ? isBilled(j) : !isBilled(j))) &&
       (!q || (j.company || "").toLowerCase().includes(q)) &&
@@ -1941,10 +1971,11 @@ function renderOverview() {
     <section class="ov-card"><h2>Progress by job list <small>Click a chart to show just that list below</small></h2>
       <div class="ov-charts">${cards}</div></section>
     ${workload}
-    <section class="ov-card" id="ovAll"><h2><span>${jobName ? esc(jobName) : "All jobs"}${fJob ? ` <button type="button" class="chip-x" id="clearJob" title="Show all lists">✕ all lists</button>` : ""}</span>
+    <section class="ov-card" id="ovAll"><div class="viewseg" role="tablist" aria-label="Which jobs"><button type="button" role="tab" data-v="ready" aria-selected="${readyView}" class="${readyView ? "on" : ""}">Ready to bill <i>${nReady}</i></button><button type="button" role="tab" data-v="all" aria-selected="${!readyView}" class="${readyView ? "" : "on"}">All jobs</button><small>${readyView ? "Jobs at Awaiting confirmation or Complete" : "Every job, whatever its status"}</small></div>
+      <h2><span>${jobName ? esc(jobName) : readyView ? "Ready to bill" : "All jobs"}${fJob ? ` <button type="button" class="chip-x" id="clearJob" title="Show all lists">✕ all lists</button>` : ""}</span>
       <small class="ovall-r">${billSeg}<span>${shown.length} ${shown.length === 1 ? "job" : "jobs"}${shown.length !== nAll ? " match" : ""}</span></small></h2>
       ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th><th>Status changed</th></tr></thead><tbody>${jobRows}</tbody>
-      <tfoot><tr><td colspan="5">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>` : `<p class="ov-more">No jobs match the current filters.</p>`}
+      <tfoot><tr><td colspan="5">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>` : `<p class="ov-more">${readyView ? "No jobs are at Awaiting confirmation or Complete yet." : "No jobs match the current filters."}</p>`}
       ${shown.length > LIMIT ? `<div class="ov-more"><button type="button" class="btn" id="showAllJobs">Show all ${shown.length} jobs</button></div>` : (ovShowAll && shown.length > 25 ? `<div class="ov-more"><button type="button" class="btn" id="showFewer">Show fewer</button></div>` : "")}</section>`;
 
   host.querySelectorAll(".chart-card").forEach(cd => cd.addEventListener("click", () => {
@@ -1953,18 +1984,20 @@ function renderOverview() {
     if ($("fJob").value) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" });
   }));
   host.querySelectorAll(".pb").forEach(b => b.addEventListener("click", () => { $("fJob").value = b.dataset.p; render(); }));
+  host.querySelectorAll(".viewseg button").forEach(b => b.addEventListener("click", () => { ovView = b.dataset.v; store.set("jt-ovview", ovView); ovShowAll = false; render(); }));
+  const toAll = () => { if (ovView !== "all") { ovView = "all"; store.set("jt-ovview", "all"); } };
   host.querySelectorAll(".billseg button").forEach(b => b.addEventListener("click", () => { $("fBill").value = b.dataset.b; render(); }));
   const kbill = $("kpiBill"); if (kbill) kbill.addEventListener("click", () => { $("fBill").value = $("fBill").value === "no" ? "" : "no"; render(); if ($("fBill").value) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" }); });
-  const kb = $("kpiBehind"); if (kb) kb.addEventListener("click", () => { $("behindOnly").checked = !$("behindOnly").checked; render(); if ($("behindOnly").checked) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  const kb = $("kpiBehind"); if (kb) kb.addEventListener("click", () => { toAll(); $("behindOnly").checked = !$("behindOnly").checked; render(); if ($("behindOnly").checked) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" }); });
   const cj = $("clearJob"); if (cj) cj.addEventListener("click", () => { $("fJob").value = ""; render(); });
   const sa = $("showAllJobs"); if (sa) sa.addEventListener("click", () => { ovShowAll = true; render(); });
   const sf = $("showFewer"); if (sf) sf.addEventListener("click", () => { ovShowAll = false; render(); });
   if (keep) { const el = document.getElementById(keep.id); if (el) { el.value = keep.v; el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (e) {} } }
   host.querySelectorAll(".mx-c").forEach(b => b.addEventListener("click", () => {
-    ["fPre", "fRev"].forEach(x => $(x).value = ""); $(b.dataset.f).value = b.dataset.v; $("fJob").value = b.dataset.t;
+    toAll(); ["fPre", "fRev"].forEach(x => $(x).value = ""); $(b.dataset.f).value = b.dataset.v; $("fJob").value = b.dataset.t;
     render(); $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" });
   }));
-  host.querySelectorAll(".wl-row").forEach(b => b.addEventListener("click", () => {
+  host.querySelectorAll(".wl-row").forEach(b => b.addEventListener("click", () => { toAll();
     const sel = $(b.dataset.f); sel.value = sel.value === b.dataset.v ? "" : b.dataset.v;
     render(); if (sel.value) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" });
   }));
@@ -2039,11 +2072,14 @@ function histRow(e) {
 let histOpenId = null;
 async function openHistory(id) {
   const j = jobs.get(id); if (!j) return;
+  if (histOpenId && histOpenId !== id) saveNotes();
   histOpenId = id;
   const t = TABS.find(x => x.id === tabOf(j));
   $("histTitle").textContent = j.company || "";
   $("histSub").textContent = [t ? tabShort(t.id) : "", isMonthly(j) ? "Monthly" : "", j.firm || ""].filter(Boolean).join(" · ");
   $("histNow").innerHTML = `Now: <span class="pill" data-s="${esc(j.status || "")}">${esc(j.status ? STATUS_LABEL[j.status] : "Not set")}</span>${j.statusAt ? ` <small>since ${esc(new Date(j.statusAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}</small>` : ""}`;
+  const nt = $("histNotes"); nt.value = j.notes || ""; nt.disabled = readOnly;
+  $("notesState").textContent = readOnly ? "Connect to GitHub to edit notes." : (j.notes ? "" : "Notes save automatically.");
   $("histList").innerHTML = `<li class="hmsg">Loading history…</li>`;
   $("histDrawer").hidden = false; $("histShade").hidden = false;
   $("histClose").focus();
@@ -2064,10 +2100,20 @@ function renderHistory(items, complete) {
   $("histList").innerHTML = shown.length ? shown.map(histRow).join("") : `<li class="hmsg">${only ? "No status changes saved yet." : "No changes saved yet."}</li>`;
   $("histNote").textContent = "History covers changes made since the tracker moved to GitHub." + (complete ? "" : " Only the most recent 1,000 saves are searched.");
 }
-function closeHistory() { histOpenId = null; $("histDrawer").hidden = true; $("histShade").hidden = true; }
+let notesTimer = null;
+function saveNotes() {
+  clearTimeout(notesTimer); notesTimer = null;
+  const id = histOpenId, j = id && jobs.get(id); if (!j || readOnly) return;
+  const v = $("histNotes").value;
+  if (v === (j.notes || "")) return;
+  patch(id, { notes: v }); $("notesState").textContent = "Saved";
+}
+function closeHistory() { saveNotes(); histOpenId = null; $("histDrawer").hidden = true; $("histShade").hidden = true; }
 function initHistory() {
   $("histClose").addEventListener("click", closeHistory);
   $("histShade").addEventListener("click", closeHistory);
+  $("histNotes").addEventListener("input", () => { $("notesState").textContent = "Saving…"; clearTimeout(notesTimer); notesTimer = setTimeout(saveNotes, 1500); });
+  $("histNotes").addEventListener("blur", saveNotes);
   $("histOnly").addEventListener("change", () => { if (lastHist) renderHistory(lastHist.items, lastHist.complete); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("histDrawer").hidden) closeHistory(); });
 }
