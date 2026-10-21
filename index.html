@@ -597,6 +597,15 @@ select.billtype { display: inline-block; vertical-align: middle; margin-left: 6p
 select.billtype:hover { border-color: var(--muted); }
 select.billtype[data-bt="plan"] { background-color: var(--s-rev-bg); color: var(--s-rev-fg); border: 1px solid transparent; }
 select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color: var(--s-conf-fg); border: 1px solid transparent; }
+
+/* Job stage check */
+.stage-shade { z-index: 70; }
+.stagebox { position: fixed; z-index: 71; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100% - 32px)); box-sizing: border-box; background: var(--surface); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); padding: 22px 22px 18px; text-align: center; }
+.stagebox h2 { font-family: var(--f-display); font-size: 1.2rem; font-weight: 600; margin: 0 0 10px; }
+.stagebox p { margin: 0 0 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 0.92rem; }
+.stage-move { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; color: var(--muted); }
+.stage-btns { display: flex; gap: 10px; justify-content: center; }
+.stage-btns .btn { min-width: 110px; justify-content: center; }
 </style>
 </head>
 <body>
@@ -713,6 +722,12 @@ select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color:
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="hshade stage-shade" id="stageShade" hidden></div>
+<div class="stagebox" id="stageBox" hidden role="alertdialog" aria-modal="true" aria-labelledby="stageTitle" aria-describedby="stageText">
+  <h2 id="stageTitle">Job stage marked off?</h2>
+  <p id="stageText"></p>
+  <div class="stage-btns"><button type="button" class="btn" id="stageNo">No</button><button type="button" class="btn primary" id="stageYes">Yes</button></div>
+</div>
 <div class="hshade" id="histShade" hidden></div>
 <aside class="drawer" id="histDrawer" hidden role="dialog" aria-labelledby="histTitle">
   <div class="dhead">
@@ -757,8 +772,10 @@ const STATUSES = [
   { id: "confirm", label: "Awaiting confirmation", c: "--s-conf-fg" },
   { id: "complete", label: "Complete", c: "--s-done-fg" }
 ];
-const PEOPLE = ["Joe", "Joseph", "Abi", "Maria", "Eden", "Ellie", "Bradley"];
-const SIGN_IN = [...PEOPLE, "Andrea", "Alice", "Kinga"];   // can sign in, but aren't preparers or reviewers
+const PERSON_COLOUR = ["Joe", "Joseph", "Abi", "Maria", "Eden", "Ellie", "Bradley"];   // fixed order, so each person keeps their chart colour
+const byName = (a, b) => a.localeCompare(b, "en", { sensitivity: "base" });
+const PEOPLE = [...PERSON_COLOUR].sort(byName);
+const SIGN_IN = [...PEOPLE, "Andrea", "Alice", "Kinga", "Kev S", "Kev W"].sort(byName);   // can sign in; only PEOPLE are preparers / reviewers   // can sign in, but aren't preparers or reviewers
 const LEGACY_VAT = { s1: "vat1", s2: "vat2", s3: "vat3", monthly: "vatm" };
 
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -1604,7 +1621,16 @@ function makeRow(id) {
   const mbadge = document.createElement("span"); mbadge.className = "mbadge"; mbadge.textContent = "Monthly"; mbadge.hidden = true; mbadge.title = "Monthly VAT client: this row tracks the month that falls on this tab";
   const coIn = document.createElement("div"); coIn.className = "co-in"; coIn.append(tog, name, mbadge, prog, dl);
   c1.append(coIn);
-  const st = makeSelect("status", STATUSES.map(s => ({ v: s.id, l: s.opt || s.label })), v => { st.dataset.s = v; patch(id, { status: v }); }, "Status");
+  const st = makeSelect("status", STATUSES.map(s => ({ v: s.id, l: s.opt || s.label })), v => {
+    const j = jobs.get(id), prev = (j && j.status) || "";
+    if (v === prev) return;
+    st.dataset.s = v;
+    if (!STAGE_CHECK_TABS.includes(tabOf(j))) { patch(id, { status: v }); return; }
+    askStage(j, prev, v).then(ok => {
+      if (ok) patch(id, { status: v });
+      else { const now = (jobs.get(id) || {}).status || ""; st.value = now; st.dataset.s = now; }
+    });
+  }, "Status");
   st.id = "status-" + id;
   const ppl = [{ v: "", l: "—" }, ...PEOPLE.map(p => ({ v: p, l: p }))];
   const com = makeSelect("", ppl, v => patch(id, { communicator: v }), "Communicator"); com.id = "com-" + id;
@@ -1937,7 +1963,7 @@ function renderOverview() {
   const jobName = fJob ? (TABS.find(t => t.id === fJob) || {}).title : "";
 
   // workload by person (open = not complete), for the chosen period
-  const PCOL = Object.fromEntries(PEOPLE.map((n, i) => [n, `var(--pp${i + 1})`]));
+  const PCOL = Object.fromEntries(PERSON_COLOUR.map((n, i) => [n, `var(--pp${i + 1})`]));
   const pie = (parts, total, big, small) => {
     const R = 46, C = 2 * Math.PI * R, GAP = parts.filter(x => x.n).length > 1 ? 2 : 0;
     let off = 0, segs = `<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--surface-2)" stroke-width="18"/>`;
@@ -2130,8 +2156,28 @@ function initHistory() {
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("histDrawer").hidden) closeHistory(); });
 }
 
+// ---------- "job stage marked off?" check ----------
+const STAGE_CHECK_TABS = ["vat1", "vat2", "vat3", "cis"];   // tabs that ask "Job stage marked off?"
+let stageResolve = null;
+function askStage(j, from, to) {
+  if (stageResolve) stageResolve(false);
+  $("stageText").innerHTML = `<b>${esc((j && j.company) || "")}</b><span class="stage-move"><span class="pill" data-s="${esc(from)}">${esc(from ? STATUS_LABEL[from] : "Not set")}</span> → <span class="pill" data-s="${esc(to)}">${esc(to ? STATUS_LABEL[to] : "Not set")}</span></span>`;
+  $("stageShade").hidden = false; $("stageBox").hidden = false; $("stageYes").focus();
+  return new Promise(res => { stageResolve = res; });
+}
+function closeStage(ok) {
+  $("stageShade").hidden = true; $("stageBox").hidden = true;
+  const r = stageResolve; stageResolve = null; if (r) r(ok);
+}
+function initStage() {
+  $("stageYes").addEventListener("click", () => closeStage(true));
+  $("stageNo").addEventListener("click", () => closeStage(false));
+  $("stageShade").addEventListener("click", () => closeStage(false));
+  document.addEventListener("keydown", e => { if (!$("stageBox").hidden && e.key === "Escape") { e.stopPropagation(); closeStage(false); } }, true);
+}
+
 // ---------- boot ----------
-buildStatic(); initTabNav(); initConnect(); initHistory(); render();
+buildStatic(); initTabNav(); initConnect(); initHistory(); initStage(); render();
 if (!cfg.repo || !cfg.token) { $("saveState").textContent = "Not connected"; showConnect(""); }
 else { $("saveState").textContent = "Loading…"; refresh(true); }
 setInterval(() => { if (document.visibilityState === "visible") refresh(); }, POLL_MS);
