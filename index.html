@@ -775,7 +775,7 @@ const STATUSES = [
 const PERSON_COLOUR = ["Joe", "Joseph", "Abi", "Maria", "Eden", "Ellie", "Bradley"];   // fixed order, so each person keeps their chart colour
 const byName = (a, b) => a.localeCompare(b, "en", { sensitivity: "base" });
 const PEOPLE = [...PERSON_COLOUR].sort(byName);
-const SIGN_IN = [...PEOPLE, "Andrea", "Alice", "Kinga", "Kev S", "Kev W"].sort(byName);   // can sign in; only PEOPLE are preparers / reviewers   // can sign in, but aren't preparers or reviewers
+const SIGN_IN = [...PEOPLE, "Andrea", "Alice", "Kinga", "Kev S", "Kev W", "Matt"].sort(byName);   // can sign in; only PEOPLE are preparers / reviewers   // can sign in, but aren't preparers or reviewers
 const LEGACY_VAT = { s1: "vat1", s2: "vat2", s3: "vat3", monthly: "vatm" };
 
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
