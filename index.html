@@ -606,6 +606,7 @@ select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color:
 .stage-move { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; color: var(--muted); }
 .stage-btns { display: flex; gap: 10px; justify-content: center; }
 .stage-btns .btn { min-width: 110px; justify-content: center; }
+.ov-jobs td.cco { min-width: 210px; }
 </style>
 </head>
 <body>
@@ -677,7 +678,7 @@ select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color:
         <label for="fStatus">Status</label>
         <select id="fStatus"></select>
       </div>
-      <div class="field" hidden>
+      <div class="field">
         <label for="fCom">Communicator</label>
         <select id="fCom"></select>
       </div>
@@ -1642,8 +1643,8 @@ function makeRow(id) {
   const per = makeSelect("", VAT_TABS.map(t => ({ v: t.id, l: t.label })), v => patch(id, { tab: v }), "VAT period"); per.id = "per-" + id;
   const when = document.createElement("span"); when.className = "when";
   coIn.append(sw);
-  const cells = [st, pre, rev, when].map(el => { const c = td(); c.append(el); return c; });
-  cells[3].className = "whencell";
+  const cells = [st, com, pre, rev, when].map(el => { const c = td(); c.append(el); return c; });
+  cells[4].className = "whencell";
   const c5 = td(); c5.className = "per"; c5.append(per);
   const c6 = td(); c6.className = "act";
   const rm = document.createElement("button"); rm.type = "button"; rm.className = "rm"; rm.textContent = "Remove";
@@ -1720,7 +1721,7 @@ function syncRow(tr, j, isVat) {
   f.tog.setAttribute("aria-expanded", open ? "true" : "false");
   f.tog.title = open ? "Hide sub items" : `Show sub items (${n})`;
   f.subTr.hidden = !open;
-  if (open) { f.subTd.colSpan = 6; renderSubs(tr, id, j); }
+  if (open) { f.subTd.colSpan = 7; renderSubs(tr, id, j); }
 }
 
 function renderLists() {
@@ -1732,7 +1733,7 @@ function renderLists() {
   const filtering = !!(q || fSt || fCom || fPre || fRev || $("hideDone").checked || behindOnly);
   $("clearFilters").hidden = !filtering;
   const hide = $("hideDone").checked;
-  const cols = ["Company", "Status", "Preparer", "Reviewer", "Status changed", ""];
+  const cols = ["Company", "Status", "Communicator", "Preparer", "Reviewer", "Status changed", ""];
 
   const fs = firmsFor(), af = activeFirm();
   const nf = $("newFirm");
@@ -1950,7 +1951,7 @@ function renderOverview() {
     const sub = pg ? `<span class="subprog" data-band="${pg.band}" title="${pg.done} of ${pg.total} sub items complete"><span class="mb"><span style="width:${pg.pct}%"></span></span><span class="pc">${pg.pct}%</span></span>` : "";
     const ds = deadlineState(j);
     const dl = ds ? `<span class="dl" data-state="${ds.state}" title="${esc(ds.title)}">${esc(ds.tag + ds.short)}</span>` : "";
-    const ppl = [j.preparer, j.reviewer];
+    const ppl = [j.communicator, j.preparer, j.reviewer];
     return `<tr class="${ds && ds.state === "behind" ? "behind" : ""}">
       <td class="cco"><button type="button" class="co-link" data-tab="${t.id}" data-co="${esc(j.company)}" title="Open on its tab">${esc(j.company)}</button>
         <span class="cmeta"><i class="ov-dot" style="background:var(--t-${t.id})"></i>${esc(t.kicker === "Monthly" ? t.label : t.kicker + " " + t.label)}${isAdhoc(j) ? " · Ad hoc" : ""}${isMonthly(j) ? " · Monthly" : ""} · ${esc(j.firm || "Sheards")}</span></td>
@@ -2013,8 +2014,8 @@ function renderOverview() {
     <section class="ov-card" id="ovAll"><div class="viewseg" role="tablist" aria-label="Which jobs"><button type="button" role="tab" data-v="ready" aria-selected="${readyView}" class="${readyView ? "on" : ""}">Ready to bill <i>${nReady}</i></button><button type="button" role="tab" data-v="all" aria-selected="${!readyView}" class="${readyView ? "" : "on"}">All jobs</button><small>${readyView ? "Jobs at Awaiting confirmation or Complete" : "Every job, whatever its status"}</small></div>
       <h2><span>${jobName ? esc(jobName) : readyView ? "Ready to bill" : "All jobs"}${fJob ? ` <button type="button" class="chip-x" id="clearJob" title="Show all lists">✕ all lists</button>` : ""}</span>
       <small class="ovall-r">${billSeg}<span>${shown.length} ${shown.length === 1 ? "job" : "jobs"}${shown.length !== nAll ? " match" : ""}</span></small></h2>
-      ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th><th>Status changed</th></tr></thead><tbody>${jobRows}</tbody>
-      <tfoot><tr><td colspan="5">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>` : `<p class="ov-more">${readyView ? "No jobs are at Awaiting confirmation or Complete yet." : "No jobs match the current filters."}</p>`}
+      ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Communicator</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th><th>Status changed</th></tr></thead><tbody>${jobRows}</tbody>
+      <tfoot><tr><td colspan="6">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>` : `<p class="ov-more">${readyView ? "No jobs are at Awaiting confirmation or Complete yet." : "No jobs match the current filters."}</p>`}
       ${shown.length > LIMIT ? `<div class="ov-more"><button type="button" class="btn" id="showAllJobs">Show all ${shown.length} jobs</button></div>` : (ovShowAll && shown.length > 25 ? `<div class="ov-more"><button type="button" class="btn" id="showFewer">Show fewer</button></div>` : "")}</section>`;
 
   host.querySelectorAll(".chart-card").forEach(cd => cd.addEventListener("click", () => {
