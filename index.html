@@ -607,6 +607,13 @@ select.billtype[data-bt="invoiced"] { background-color: var(--s-conf-bg); color:
 .stage-btns { display: flex; gap: 10px; justify-content: center; }
 .stage-btns .btn { min-width: 110px; justify-content: center; }
 .ov-jobs td.cco { min-width: 210px; }
+.billclear { display: flex; justify-content: flex-end; padding: 6px 20px 14px; }
+.stagebox .cnote { color: var(--muted); font-size: 0.82rem; }
+td.co .feebox.mini { flex: none; margin-left: auto; height: 24px; box-sizing: border-box; border-radius: 999px; padding: 0 8px 0 9px; font-size: 0.74rem; font-weight: 700; border-style: dashed; }
+td.co .feebox.mini.has { border-style: solid; background: var(--surface-2); color: var(--ink); }
+td.co .feebox.mini:focus-within { border-style: solid; }
+td.co .feebox.mini input.rowfee { width: 46px; border: 0; background: transparent; font: inherit; color: var(--ink); padding: 0 0 0 2px; min-height: 0; height: 22px; outline: none; font-variant-numeric: tabular-nums; }
+td.co .feebox.mini input.rowfee::placeholder { color: var(--muted); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -886,12 +893,15 @@ function applyOps(data, list) {
       const i = arr.findIndex(x => x.id === op.id); if (i >= 0) arr.splice(i, 1);
     } else if (op.t === "migrate") {
       migrateMonthly(data);
+    } else if (op.t === "clearbill") {
+      const ids = new Set(op.ids);
+      arr.forEach(j => { if (ids.has(j.id)) { j.billed = ""; j.billtype = ""; j.updated = op.at; j.updatedBy = op.by; } });
     } else if (op.t === "clear") {
       const ids = new Set(op.ids);
       if (op.kind === "wipe") data.jobs = arr.filter(x => !ids.has(x.id));
       else arr.forEach(j => {
         if (!ids.has(j.id)) return;
-        j.status = ""; j.billed = ""; j.statusAt = ""; j.statusBy = ""; j.updated = op.at; j.updatedBy = op.by;
+        j.status = ""; j.billed = ""; j.billtype = ""; j.statusAt = ""; j.statusBy = ""; j.updated = op.at; j.updatedBy = op.by;
         if (j.subitems) { try { j.subitems = JSON.stringify(subsOf(j).map(x => ({ ...x, status: "", weeks: {} }))); } catch (e) {} }
       });
     }
@@ -905,6 +915,7 @@ function tabShort(tabId) { const t = TABS.find(x => x.id === tabId); return t ? 
 function opLine(op) {
   if (op.t === "add") return `Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `Removed ${op.company || "a company"}`;
+  if (op.t === "clearbill") return `Cleared billing for ${op.ids.length} ${op.ids.length === 1 ? "job" : "jobs"}${op.label ? " on " + op.label : ""}`;
   if (op.t === "clear") return `${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
   if (op.t !== "update") return "";
   const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "billtype" ? (BILLTYPE_LABEL[op.value] || "Not set") : op.field === "subitems" || op.field === "notes" ? "updated" : (op.value || "—");
@@ -920,6 +931,7 @@ function commitMessage(all) {
   if (op.t === "migrate") return `${who}Moved monthly VAT clients onto the quarter tabs`;
   if (op.t === "add") return `${who}Added ${op.job.company}${op.job.monthly === "yes" ? " (monthly VAT)" : ""}`;
   if (op.t === "remove") return `${who}Removed ${op.company || "a company"}`;
+  if (op.t === "clearbill") return who + opLine(op) + "\n\n" + op.names.join("\n");
   if (op.t === "clear") return `${who}${op.kind === "wipe" ? "Removed" : "Cleared statuses for"} ${op.ids.length} companies on ${op.label}`;
   const val = op.field === "status" ? (STATUS_LABEL[op.value] || "Not set") : op.field === "billed" ? (op.value ? "Billed" : "Not billed") : op.field === "fee" ? (op.value ? money(+op.value) : "removed") : op.field === "billtype" ? (BILLTYPE_LABEL[op.value] || "Not set") : op.field === "subitems" || op.field === "notes" ? "updated" : op.field === "statusAt" || op.field === "statusBy" ? "recorded" : (op.value || "—");
   return `${who}${op.company || ""}: ${FIELD_LABEL[op.field] || op.field} → ${val}`;
@@ -1000,7 +1012,7 @@ async function call(fn, tabId, firm, kind) { // only used for the end-of-period 
   const t = TABS.find(x => x.id === tabId);
   const ids = list(tabId, firm).map(([id]) => id);
   if (kind === "wipe") ids.forEach(id => jobs.delete(id));
-  else ids.forEach(id => { const j = jobs.get(id); if (j) jobs.set(id, { ...j, status: "", billed: "", statusAt: "", statusBy: "", subitems: j.subitems ? JSON.stringify(subsOf(j).map(x => ({ ...x, status: "", weeks: {} }))) : j.subitems }); });
+  else ids.forEach(id => { const j = jobs.get(id); if (j) jobs.set(id, { ...j, status: "", billed: "", billtype: "", statusAt: "", statusBy: "", subitems: j.subitems ? JSON.stringify(subsOf(j).map(x => ({ ...x, status: "", weeks: {} }))) : j.subitems }); });
   render();
   return enqueue({ t: "clear", ids, kind, label: (t ? t.title : tabId) + (firm ? " · " + firm : "") });
 }
@@ -1642,7 +1654,16 @@ function makeRow(id) {
   const sw = makeSelect("software", [{ v: "", l: "Software" }, ...SOFTWARE.map(x => ({ v: x, l: x }))], v => { sw.dataset.sw = v; patch(id, { software: v }); }, "Software"); sw.id = "sw-" + id;
   const per = makeSelect("", VAT_TABS.map(t => ({ v: t.id, l: t.label })), v => patch(id, { tab: v }), "VAT period"); per.id = "per-" + id;
   const when = document.createElement("span"); when.className = "when";
-  coIn.append(sw);
+  const feeWrap = document.createElement("span"); feeWrap.className = "feebox mini"; feeWrap.title = "Fee (also shown on the Overview)";
+  const feeCur = document.createElement("span"); feeCur.textContent = "£";
+  const fee = document.createElement("input"); fee.type = "text"; fee.inputMode = "decimal"; fee.className = "rowfee"; fee.placeholder = "Fee"; fee.id = "rowfee-" + id;
+  fee.setAttribute("aria-label", "Fee");
+  const feeShow = j => feeOf(j) ? (feeOf(j) % 1 ? feeOf(j).toFixed(2) : String(feeOf(j))) : "";
+  const feeSave = () => { const j = jobs.get(id); if (!j) return; const v = cleanFee(fee.value); if (v !== cleanFee(j.fee || "")) patch(id, { fee: v }); else fee.value = feeShow(j); };
+  fee.addEventListener("change", feeSave);
+  fee.addEventListener("keydown", e => { if (e.key === "Enter") fee.blur(); if (e.key === "Escape") { const j = jobs.get(id); fee.value = j ? feeShow(j) : ""; fee.blur(); } });
+  feeWrap.append(feeCur, fee);
+  coIn.append(sw, feeWrap);
   const cells = [st, com, pre, rev, when].map(el => { const c = td(); c.append(el); return c; });
   cells[4].className = "whencell";
   const c5 = td(); c5.className = "per"; c5.append(per);
@@ -1678,7 +1699,7 @@ function makeRow(id) {
   box.append(listEl, form); subTd.append(box); subTr.append(subTd);
   const grp = document.createElement("tbody"); grp.className = "job"; grp.dataset.id = id;
   grp.append(tr, subTr);
-  grp._f = { hb, name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, sw, subTr, subTd, list: listEl, subIn, subBtn };
+  grp._f = { hb, fee, name, st, com, pre, rev, per, perCell: c5, rm, tog, prog, dl, mbadge, when, sw, subTr, subTd, list: listEl, subIn, subBtn };
   return grp;
 }
 function syncRow(tr, j, isVat) {
@@ -1700,7 +1721,9 @@ function syncRow(tr, j, isVat) {
     if (v && !SOFTWARE.includes(v) && ![...f.sw.options].some(o => o.value === v)) f.sw.append(opt(v, v)); // keep any value not in the list
     f.sw.value = v; f.sw.dataset.sw = v;
   }
-  [f.name, f.st, f.com, f.pre, f.rev, f.per, f.rm, f.sw, f.subIn, f.subBtn].forEach(el => el.disabled = readOnly);
+  if (act !== f.fee) f.fee.value = feeOf(j) ? (feeOf(j) % 1 ? feeOf(j).toFixed(2) : String(feeOf(j))) : "";
+  f.fee.parentNode.classList.toggle("has", !!feeOf(j));
+  [f.name, f.st, f.com, f.pre, f.rev, f.per, f.rm, f.sw, f.fee, f.subIn, f.subBtn].forEach(el => el.disabled = readOnly);
   const t = cur(), hasSubs = !!t.subs, id = tr.dataset.id;
   const n = subsOf(j).length;
   f.tog.hidden = !hasSubs;
@@ -2015,7 +2038,8 @@ function renderOverview() {
       <h2><span>${jobName ? esc(jobName) : readyView ? "Ready to bill" : "All jobs"}${fJob ? ` <button type="button" class="chip-x" id="clearJob" title="Show all lists">✕ all lists</button>` : ""}</span>
       <small class="ovall-r">${billSeg}<span>${shown.length} ${shown.length === 1 ? "job" : "jobs"}${shown.length !== nAll ? " match" : ""}</span></small></h2>
       ${shown.length ? `<div class="scroll"><table class="ov-table ov-jobs"><thead><tr><th>Company</th><th>Status</th><th>VAT due</th><th>Communicator</th><th>Preparer</th><th>Reviewer</th><th class="cfee">Fee</th><th class="cbill">Billed</th><th>Status changed</th></tr></thead><tbody>${jobRows}</tbody>
-      <tfoot><tr><td colspan="6">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>` : `<p class="ov-more">${readyView ? "No jobs are at Awaiting confirmation or Complete yet." : "No jobs match the current filters."}</p>`}
+      <tfoot><tr><td colspan="6">Total for the ${shown.length} ${shown.length === 1 ? "job" : "jobs"} shown${shown.length > LIMIT ? " (including those not listed)" : ""}</td><td class="cfee num-r">${money(shown.reduce((t, [, j]) => t + feeOf(j), 0))}</td><td class="cbill"><span class="tot-b">${money(shown.reduce((t, [, j]) => t + (isBilled(j) ? feeOf(j) : 0), 0))} billed</span></td><td></td></tr></tfoot></table></div>
+      ${!readOnly && shown.some(([, j]) => isBilled(j) || j.billtype) ? `<div class="billclear"><button type="button" class="link-danger" id="clearBill">Clear billing for the jobs shown…</button></div>` : ""}` : `<p class="ov-more">${readyView ? "No jobs are at Awaiting confirmation or Complete yet." : "No jobs match the current filters."}</p>`}
       ${shown.length > LIMIT ? `<div class="ov-more"><button type="button" class="btn" id="showAllJobs">Show all ${shown.length} jobs</button></div>` : (ovShowAll && shown.length > 25 ? `<div class="ov-more"><button type="button" class="btn" id="showFewer">Show fewer</button></div>` : "")}</section>`;
 
   host.querySelectorAll(".chart-card").forEach(cd => cd.addEventListener("click", () => {
@@ -2027,6 +2051,16 @@ function renderOverview() {
   host.querySelectorAll(".viewseg button").forEach(b => b.addEventListener("click", () => { ovView = b.dataset.v; store.set("jt-ovview", ovView); ovShowAll = false; render(); }));
   const toAll = () => { if (ovView !== "all") { ovView = "all"; store.set("jt-ovview", "all"); } };
   host.querySelectorAll(".billseg button").forEach(b => b.addEventListener("click", () => { $("fBill").value = b.dataset.b; render(); }));
+  const cb = $("clearBill");
+  if (cb) cb.addEventListener("click", async () => {
+    const hit = shown.filter(([, j]) => isBilled(j) || j.billtype);
+    const where = selName ? ` on <b>${esc(selName)}</b>` : "";
+    const ok = await askConfirm("Clear billing?", `<span>This unticks <b>Billed</b> and clears the <b>Billing type</b> for ${hit.length} ${hit.length === 1 ? "job" : "jobs"}${where} in the list shown.</span><small class="cnote">Fees and statuses stay as they are.</small>`, "Yes, clear billing");
+    if (!ok) return;
+    hit.forEach(([id, j]) => jobs.set(id, { ...j, billed: "", billtype: "" }));
+    render();
+    enqueue({ t: "clearbill", ids: hit.map(([id]) => id), names: hit.map(([, j]) => j.company || ""), label: selName }).catch(() => refresh(true));
+  });
   const kbill = $("kpiBill"); if (kbill) kbill.addEventListener("click", () => { $("fBill").value = $("fBill").value === "no" ? "" : "no"; render(); if ($("fBill").value) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" }); });
   const kb = $("kpiBehind"); if (kb) kb.addEventListener("click", () => { toAll(); $("behindOnly").checked = !$("behindOnly").checked; render(); if ($("behindOnly").checked) $("ovAll").scrollIntoView({ behavior: "smooth", block: "start" }); });
   const cj = $("clearJob"); if (cj) cj.addEventListener("click", () => { $("fJob").value = ""; render(); });
@@ -2162,8 +2196,15 @@ function initHistory() {
 // ---------- "job stage marked off?" check ----------
 const STAGE_CHECK_TABS = ["vat1", "vat2", "vat3", "cis"];   // tabs that ask "Job stage marked off?"
 let stageResolve = null;
+function askConfirm(title, html, yesLabel) {
+  if (stageResolve) stageResolve(false);
+  $("stageTitle").textContent = title; $("stageText").innerHTML = html; $("stageYes").textContent = yesLabel || "Yes";
+  $("stageShade").hidden = false; $("stageBox").hidden = false; $("stageNo").focus();
+  return new Promise(res => { stageResolve = res; });
+}
 function askStage(j, from, to) {
   if (stageResolve) stageResolve(false);
+  $("stageTitle").textContent = "Job stage marked off?"; $("stageYes").textContent = "Yes";
   $("stageText").innerHTML = `<b>${esc((j && j.company) || "")}</b><span class="stage-move"><span class="pill" data-s="${esc(from)}">${esc(from ? STATUS_LABEL[from] : "Not set")}</span> → <span class="pill" data-s="${esc(to)}">${esc(to ? STATUS_LABEL[to] : "Not set")}</span></span>`;
   $("stageShade").hidden = false; $("stageBox").hidden = false; $("stageYes").focus();
   return new Promise(res => { stageResolve = res; });
